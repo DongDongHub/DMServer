@@ -14,7 +14,7 @@ void ProxyServiceHandle::handle(const AMQP::Message &message)
 
 int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 {
-	//ACE_DEBUG((LM_INFO,"app data, route to server!\n"));
+	ACE_DEBUG((LM_INFO,"app data, route to server!\n"));
 	DMMessage client_msg;
 
 	if (!recv_client_data(client_msg))
@@ -50,8 +50,8 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 			break;
 		}
 	}
-
-	return -1;
+    
+	return 0;
 }
 	
 bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
@@ -82,7 +82,7 @@ bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 
 int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 {
-	//ACE_DEBUG((LM_INFO,"proxy register_handler = %d\n",get_handle()));
+	ACE_DEBUG((LM_INFO,"proxy register_handler = %d\n",get_handle()));
 	ACE_Reactor *pReactor = Reactor_Pool::instance()->pull();
 	if ( -1 == get_handle() || nullptr == pReactor)
 	{
@@ -96,3 +96,4 @@ int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 	}
 	return 0;
 }
+
