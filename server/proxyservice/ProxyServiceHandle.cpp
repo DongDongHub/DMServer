@@ -26,7 +26,7 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 	{
 	case LOGIN_MSG:
 		{
-			user_disconnct(fd);  
+			user_connect(fd);  
 			DMMessage server_msg;
             ACE_DEBUG((LM_INFO,"RECIVE LOGIN_MSG!\n"));
 
@@ -58,7 +58,7 @@ bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 	char head[DMMessageParser::HEAD_CHAR_LEN] = {0};
 	if (peer().recv(head,DMMessageParser::HEAD_CHAR_LEN) < 1)
     {
-        user_disconnct(peer().get_handle());
+        user_disconnect(peer().get_handle());
         return false;
     }   
 	
@@ -68,27 +68,31 @@ bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 	head_info = parser.parse(head);
 
     //some message maybe have no message body
-	/*if ( head_info.length <= 0 )
-	{
-		return false;
-	}
+    do
+    {
+    	if ( head_info.length <= 0 )
+    	{
+    		break;
+    	}
 
-	//recive body
-	msg.body = new char[head_info.length];
-	memset(msg.body,0,head_info.length);
-	peer().recv(msg.body,head_info.length);*/
+    	//recive body
+    	msg.body = new char[head_info.length];
+    	memset(msg.body,0,head_info.length);
+    	peer().recv(msg.body,head_info.length);
+        
+    }while(false);
 
 	msg.head = head_info;
 
 	return true;
 }
 
-void ProxyServiceHandle::user_conncet(ACE_HANDLE fd)
+void ProxyServiceHandle::user_connect(ACE_HANDLE fd)
 {
     ProxySessionMgr::instance()->add_session(fd, new ProxySession(this));//fd作为sessionid
 }
 
-void ProxyServiceHandle::user_disconnct(ACE_HANDLE fd)
+void ProxyServiceHandle::user_disconnect(ACE_HANDLE fd)
 {
     ProxySessionMgr::instance()->del_session(fd);//fd作为sessionid
     handle_close();
@@ -96,7 +100,6 @@ void ProxyServiceHandle::user_disconnct(ACE_HANDLE fd)
 
 int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 {
-	ACE_DEBUG((LM_INFO,"proxy register_handler = %d\n",get_handle()));
 	ACE_Reactor *pReactor = Reactor_Pool::instance()->pull();
 	if ( -1 == get_handle() || nullptr == pReactor)
 	{
