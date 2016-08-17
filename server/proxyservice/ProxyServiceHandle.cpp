@@ -26,8 +26,7 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 	{
 	case LOGIN_MSG:
 		{
-			ProxySessionMgr::instance()->add_session(fd, new ProxySession(this));//fd作为sessionid
-				
+			user_disconnct(fd);  
 			DMMessage server_msg;
             ACE_DEBUG((LM_INFO,"RECIVE LOGIN_MSG!\n"));
 
@@ -50,14 +49,18 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 			break;
 		}
 	}
-    
+
 	return 0;
 }
 	
 bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 {
 	char head[DMMessageParser::HEAD_CHAR_LEN] = {0};
-	peer().recv(head,DMMessageParser::HEAD_CHAR_LEN);
+	if (peer().recv(head,DMMessageParser::HEAD_CHAR_LEN) < 1)
+    {
+        user_disconnct(peer().get_handle());
+        return false;
+    }   
 	
 	DMMessageParser parser;
 	DMMessageHead head_info;
@@ -80,6 +83,17 @@ bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 	return true;
 }
 
+void ProxyServiceHandle::user_conncet(ACE_HANDLE fd)
+{
+    ProxySessionMgr::instance()->add_session(fd, new ProxySession(this));//fd作为sessionid
+}
+
+void ProxyServiceHandle::user_disconnct(ACE_HANDLE fd)
+{
+    ProxySessionMgr::instance()->del_session(fd);//fd作为sessionid
+    handle_close();
+}
+
 int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 {
 	ACE_DEBUG((LM_INFO,"proxy register_handler = %d\n",get_handle()));
@@ -89,11 +103,12 @@ int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 		return -1;
 	}
 
-	if ( -1 == pReactor->register_handler(this,ACE_Event_Handler::READ_MASK))
+	if ( -1 == pReactor->register_handler(this,ACE_Event_Handler::READ_MASK /*| ACE_Event_Handler::WRITE_MASK*/))
 	{
 		ACE_DEBUG((LM_INFO,"register_handler failure,all reactor is full!\n"));
 		return -1;
 	}
+
 	return 0;
 }
 

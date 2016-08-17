@@ -68,6 +68,7 @@ int ProxySessionManager::del_session(ACE_HANDLE fd)
 	int ret = -1;
 	if (nullptr != find_session(fd))
 	{
+	    delete _sessions[fd];
 		_sessions.erase(fd);
 		ret = 0;
 	}
@@ -81,7 +82,8 @@ int ProxySessionManager::del_session(ProxySession* pSession)
 	int ret = -1;
 	ACE_HANDLE fd = find_fd(pSession);
 	if (-1 != fd)
-	{
+	{	
+        delete _sessions[fd];
 		_sessions.erase(fd);
 		ret = 0;
 	}

@@ -18,6 +18,10 @@ public:
 
 	bool recv_client_data(DMMessage &msg);
 
+    void user_conncet(ACE_HANDLE fd);
+
+    void user_disconnct(ACE_HANDLE fd);
+
 	//重写实现。需要绑定到不同的reactor上面
 	virtual int open(void *acceptor_or_connector = 0) override;
 };
