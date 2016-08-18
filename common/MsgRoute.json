@@ -11,12 +11,12 @@
     
     "message_route": 
         {
-            "system_reserve":1000,
-            "gateservice":   2000,
-            "proxyservice":  3000,
-            "loginservice":  4000,
-            "infoservice":   5000,
-            "chatservice":   6000,
-            "webservice":    8000
+            "system_reserve":[1001,2000],
+            "gateservice":   [2001,3000],
+            "proxyservice":  [3001,4000],
+            "loginservice":  [4001,5000],
+            "infoservice":   [5001,6000],
+            "chatservice":   [6001,7000],
+            "webservice":    [7001,8000]
         }
 }

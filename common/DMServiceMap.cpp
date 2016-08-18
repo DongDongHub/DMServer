@@ -53,7 +53,9 @@ void DMServiceMap::load_cfg()
         for (; svr_it != service_map.end(); ++svr_it)
         {
             int svr_id = svr_it->second;
-            int msg_range = message_route[svr_it->first].asInt();
+            MsgRange msg_range;
+            msg_range.msg_start = message_route[svr_it->first][0].asInt();
+            msg_range.msg_end = message_route[svr_it->first][1].asInt();
             message_map.insert(std::make_pair(svr_id,msg_range));
         }
     }

@@ -25,9 +25,9 @@
 
 enum msg_type   //公共维护消息 1000-1999
 {
-    ADD_PROXY_MSG = 1000,
-    RMV_PROXY_MSG = 1001,
-    STOP_SERVER   = 1002    
+    ADD_PROXY_MSG = 1001,
+    RMV_PROXY_MSG = 1002,
+    STOP_SERVER   = 1003    
 };
 
 enum msg_flge    //公共flag标记

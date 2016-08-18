@@ -5,6 +5,13 @@
 
 #define SERVICE_MAP_PATH "..//..//common//MsgRoute.json"
 
+typedef struct msg_range
+{
+    msg_range():msg_start(0),msg_end(0){};
+    int msg_start;
+    int msg_end;
+}MsgRange;
+
 class DMServiceMap
 {
 public:
@@ -12,9 +19,11 @@ public:
     
     DMServiceMap();
     
-    //<serverid,message_max>,消息直接映射无指定cluster、node场景
+    //<server_name,server_id>
     std::map<std::string, int> service_map;
-    std::map<int, int> message_map;  
+ 
+    //<server_name,msg_range>,消息直接映射无指定cluster、node场景
+    std::map<int, MsgRange> message_map;  
 private: 
     void load_cfg();
 
