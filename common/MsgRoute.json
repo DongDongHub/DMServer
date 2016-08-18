@@ -1,0 +1,22 @@
+{
+    "service_id": 
+        {
+            "gateservice":  21,
+            "proxyservice": 22,
+            "loginservice": 23,
+            "infoservice":  24,
+            "chatservice":  25,
+            "webservice":   26
+        },
+    
+    "message_route": 
+        {
+            "system_reserve":1000,
+            "gateservice":   2000,
+            "proxyservice":  3000,
+            "loginservice":  4000,
+            "infoservice":   5000,
+            "chatservice":   6000,
+            "webservice":    8000
+        }
+}

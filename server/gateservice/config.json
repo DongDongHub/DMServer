@@ -9,6 +9,6 @@
             "broker_port": 5672,
             "broker_user": "guest",
             "broker_passwd": "guest",
-            "broker_svrid": 22
+            "broker_svrid": 21
         }
 }

@@ -9,6 +9,29 @@ void ProxyServiceHandle::handle(const AMQP::Message &message)
 {
 	//server message
 	ACE_DEBUG((LM_INFO,"proxy recevie msg,route to app or others\n"));
+
+    //parse message
+    DMMessageParser parser;
+	DMMessage req_msg;
+    
+	if (!parser.parse(req_msg,message))
+	{
+		ACE_DEBUG((LM_INFO,"parse AMQP::Message error!\n"));
+		return;
+	}
+		
+	//pb decode
+
+	switch (req_msg.head.msg_cmd)
+	{
+	case STOP_SERVER:
+		{
+			ACE_Reactor::instance()->end_reactor_event_loop();
+		}
+		//Í£·þ
+	default:
+		break;
+	}
 }
 
 int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)

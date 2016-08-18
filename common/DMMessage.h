@@ -23,7 +23,7 @@
                     bit 7:  reserve
 ---------------------------------------------------------------------------------*/
 
-enum msg_type   //公共维护消息
+enum msg_type   //公共维护消息 1000-1999
 {
     ADD_PROXY_MSG = 1000,
     RMV_PROXY_MSG = 1001,
@@ -37,7 +37,7 @@ enum msg_flge    //公共flag标记
 
 	LOGIN_MSG     = 0x04,
 	HEARTBEAT_MSG = 0x08,
-	SERVICE_MSG	 = 0x10,
+	SERVICE_MSG	  = 0x10,
 	NOTIFY_MSG    = 0x20,
 	MAINT_MSG     = 0x40,
 
