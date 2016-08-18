@@ -1,7 +1,6 @@
 #include "ProxyServiceHandle.h"
 #include "DMMessageParser.h"
 #include "DMBrokerProxy.h"
-#include "ProxyRouter.h"
 #include "ReactorPool.h"
 #include "ProxySessionMgr.h"
 #include <ace/Log_Msg.h>
@@ -25,11 +24,15 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 	switch (client_msg.head.flag & MSG_MASK)
 	{
 	case LOGIN_MSG:
-		{
-			user_connect(fd);  
-			DMMessage server_msg;
+		{         
             ACE_DEBUG((LM_INFO,"RECIVE LOGIN_MSG!\n"));
-
+			user_connect(fd);  
+            
+			DMMessage server_msg;
+            server_msg = client_msg;
+            
+            _router.route(server_msg);
+            
 			break;
 		}
 	case HEARTBEAT_MSG:
@@ -38,6 +41,11 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 		}
 	case SERVICE_MSG:
 		{
+			DMMessage server_msg;
+            server_msg = client_msg;
+            
+            _router.route(server_msg);
+            
 			break;
 		}
 	case NOTIFY_MSG:

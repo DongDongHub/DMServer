@@ -4,6 +4,7 @@
 #include "ace/Synch_Traits.h"
 #include "ace/SOCK_Stream.h"
 #include "ace/Svc_Handler.h"
+#include "ProxyRouter.h"
 #include "DMMessage.h"
 
 class ProxyServiceHandle : public DMServiceHandle, public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
@@ -24,4 +25,7 @@ public:
 
 	//重写实现。需要绑定到不同的reactor上面
 	virtual int open(void *acceptor_or_connector = 0) override;
+
+private:
+    ProxyRouter _router;
 };
