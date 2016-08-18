@@ -3,7 +3,7 @@
 #include "GateServiceHandle.h"
 #include "ProxyMapManager.h"
 #include "DMMessageParser.h"
-#include "GateServiceMsg.pb.h"
+#include "Gateservice.pb.h"
 #include "GateService.h"
 #include <string>
 
