@@ -2,7 +2,8 @@
 #include "ace/Reactor.h"
 #include "DMService.h"
 #include <ace/Log_Msg.h>
-
+#include <DMServiceMap.h>
+#include <map>
 extern DMService* GetService();
 
 DMBrokerProxy* DMBrokerProxy::_instance = NULL;
@@ -41,10 +42,13 @@ int DMBrokerProxy::init(std::string host,int port, std::string username, std::st
 
 	AMQP::SuccessCallback success = [svrid, this, callback]()
 	{
-		char que[4] = { '\0' };
-		ACE_OS::itoa(svrid, que, 10);
-		std::string quename(que);
-		_channel->declareQueue(quename, AMQP::durable).onSuccess(callback);
+	    std::map<std::string, int> svr_map = DMServiceMap::instance()->service_map;
+        std::map<std::string, int>::iterator svr_it = svr_map.begin();
+        for (; svr_it != svr_map.end(); ++svr_it)
+        {
+            //待优化，修改配置。一个service绑定多个queue
+            _channel->declareQueue(svr_it->first, AMQP::durable).onSuccess(callback);
+        }        
 	};
 
 	// use the channel object to call the AMQP method you like
