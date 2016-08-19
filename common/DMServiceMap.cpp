@@ -48,9 +48,23 @@ void DMServiceMap::load_cfg()
             service_map.insert(std::make_pair(service_name,svr_id));
         }
 
-        Json::Value message_route = Root["message_route"];
+        Json::Value rabbit_queue = Root["rabbit_queue"];
         std::map<std::string, int>::iterator svr_it = service_map.begin();
         for (; svr_it != service_map.end(); ++svr_it)
+        {
+            std::string svr_name = svr_it->first;
+            int svr_id = svr_it->second;
+            int mq_size = rabbit_queue[svr_name].size();
+            std::vector<int> mq_number;
+            for (int i = 0; i < mq_size; ++i)
+            {
+                mq_number.push_back(rabbit_queue[svr_name][i].asInt());
+            }
+            queue_map.insert(std::make_pair(svr_id,mq_number));
+        }
+
+        Json::Value message_route = Root["message_route"];
+        for (svr_it = service_map.begin(); svr_it != service_map.end(); ++svr_it)
         {
             int svr_id = svr_it->second;
             MsgRange msg_range;

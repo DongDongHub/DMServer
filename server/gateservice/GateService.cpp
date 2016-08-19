@@ -51,7 +51,6 @@ int GateService::init()
 		_brk_info.broker_port = broker_info["broker_port"].asInt();
 		_brk_info.broker_user = broker_info["broker_user"].asString();
 		_brk_info.broker_passwd = broker_info["broker_passwd"].asString();
-		_brk_info.broker_svrid = broker_info["broker_svrid"].asInt();
 	}
 	
 	cfg_file.close();
@@ -59,7 +58,7 @@ int GateService::init()
 	ACE_INET_Addr addr(_svr_info.host_port, _svr_info.host_ip.c_str());
 	_acceptor.open(addr,ACE_Reactor::instance());
 
-	DMBrokerProxy::getInstance()->init(_brk_info.broker_ip.c_str(),_brk_info.broker_port, _brk_info.broker_user,_brk_info.broker_passwd , _brk_info.broker_svrid);
+	DMBrokerProxy::getInstance()->init(_brk_info.broker_ip.c_str(),_brk_info.broker_port, _brk_info.broker_user,_brk_info.broker_passwd);
 
 	return 1;
 }

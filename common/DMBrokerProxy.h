@@ -14,8 +14,8 @@ public:
 		}
 		return _instance;
 	}
-
-	int init(std::string host, int port, std::string username,std::string userpasswd,int svrid);
+    //依据配置尝试创建所有队列，取消svrid入参
+	int init(std::string host, int port, std::string username,std::string userpasswd);
 
 	void publish(const std::string &exchange, const std::string &routingKey, const char *message, size_t size);
 

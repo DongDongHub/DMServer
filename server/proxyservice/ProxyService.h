@@ -23,7 +23,6 @@ typedef struct broker_config_info
 	int broker_port;
 	std::string broker_user;
 	std::string broker_passwd;
-	int broker_svrid;
 }Broker_info;
 
 class ProxyService : public DMService

@@ -8,7 +8,6 @@
             "broker_ip": "127.0.0.1",
             "broker_port": 5672,
             "broker_user": "guest",
-            "broker_passwd": "guest",
-            "broker_svrid": 21
+            "broker_passwd": "guest"
         }
 }

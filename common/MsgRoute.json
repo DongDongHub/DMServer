@@ -8,7 +8,17 @@
             "chatservice":  25,
             "webservice":   26
         },
-    
+        
+    "rabbit_queue":
+        {
+            "gateservice":  [100],
+            "proxyservice": [200],
+            "loginservice": [300,301],
+            "infoservice":  [400],
+            "chatservice":  [500,501,502],
+            "webservice":   [600]
+        },
+        
     "message_route": 
         {
             "system_reserve":[1001,2000],
