@@ -10,7 +10,6 @@
 class ProxyServiceHandle : public DMServiceHandle, public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
 public:
-
 	//主要是处理从消息服务器过来的维护、心跳、添加/删除proxy的消息
 	virtual void handle(const AMQP::Message &message) override;
 
@@ -27,5 +26,4 @@ public:
 	virtual int open(void *acceptor_or_connector = 0) override;
 
 private:
-    ProxyRouter _router;
 };

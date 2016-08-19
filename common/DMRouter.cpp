@@ -6,7 +6,17 @@
 #include <ace/Log_Msg.h>
 #include <map>
 
-void DMRouter::route(DMMessage& message)
+void DMRouter::send(DMMessage& message, std::string exchange)
+{
+    route(message, exchange);
+}
+
+void DMRouter::publish(DMMessage& message)
+{
+    route(message, FANOUT);
+}
+
+void DMRouter::route(DMMessage& message, std::string exchange)
 {
     std::map<int, MsgRange> message_map = DMServiceMap::instance()->message_map;
     std::map<int, MsgRange>::iterator it = message_map.begin();

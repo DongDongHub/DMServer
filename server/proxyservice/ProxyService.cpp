@@ -6,6 +6,7 @@
 #include "DMServiceHandle.h"
 #include "json/json.h"
 #include "ace/Dev_Poll_Reactor.h"
+#include "ProxyRouter.h"
 #include "ReactorPool.h"
 #include "MemoryPool.h"
 
@@ -66,17 +67,11 @@ int ProxyService::init()
 	ACE_INET_Addr addr(_svr_info.host_port, _svr_info.host_ip.c_str());
 	_acceptor.open(addr,ACE_Reactor::instance());
 
+    setRouter(new ProxyRouter);
 	DMBrokerProxy::getInstance()->init(_brk_info.broker_ip.c_str(),_brk_info.broker_port, _brk_info.broker_user,_brk_info.broker_passwd,_svr_info.host_name);
 
 	return 1;
 }
-
-
-void ProxyService::dispatch()
-{
-	//throw std::exception("The method or operation is not implemented.");
-}
-
 
 void ProxyService::receive(const AMQP::Message &message)
 {	

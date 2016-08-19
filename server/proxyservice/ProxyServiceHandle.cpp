@@ -3,6 +3,7 @@
 #include "DMBrokerProxy.h"
 #include "ReactorPool.h"
 #include "ProxySessionMgr.h"
+#include "ProxyService.h"
 #include <ace/Log_Msg.h>
 
 void ProxyServiceHandle::handle(const AMQP::Message &message)
@@ -54,7 +55,7 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 			DMMessage server_msg;
             server_msg = client_msg;
             
-            _router.route(server_msg);
+            ProxyService::instance()->dispatch(server_msg);
             
 			break;
 		}
@@ -67,7 +68,7 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 			DMMessage server_msg;
             server_msg = client_msg;
             
-            _router.route(server_msg);
+            ProxyService::instance()->dispatch(server_msg);
             
 			break;
 		}

@@ -33,8 +33,6 @@ public:
 
 	virtual int init();
 
-	virtual void dispatch();
-
 	virtual void receive(const AMQP::Message &message);
 
 	virtual void stop(int reason);
