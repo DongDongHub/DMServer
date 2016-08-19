@@ -22,11 +22,11 @@ public:
     //<server_name,server_id>
     std::map<std::string, int> service_map;
  
-    //<server_name,msg_range>,消息直接映射无指定cluster、node场景
+    //<server_name,msg_range>
     std::map<int, MsgRange> message_map;  
 
     //rabbit_queue
-    std::map<int, std::vector<int>> queue_map;
+    std::map<int, std::vector<std::string>> queue_map;
 private: 
     void load_cfg();
 

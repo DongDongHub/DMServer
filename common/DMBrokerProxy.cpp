@@ -8,7 +8,7 @@ extern DMService* GetService();
 
 DMBrokerProxy* DMBrokerProxy::_instance = NULL;
 
-int DMBrokerProxy::init(std::string host,int port, std::string username, std::string userpasswd)
+int DMBrokerProxy::init(std::string host,int port, std::string username, std::string userpasswd,std::string servicename)
 {
 	// create an instance of your own tcp handler
 	_handle = new DMBrokerMessageHandle();
@@ -22,6 +22,10 @@ int DMBrokerProxy::init(std::string host,int port, std::string username, std::st
 	// and create a channel
 	_channel = new AMQP::TcpChannel(_connection);
 
+    //get service id
+    std::map<std::string, int> service_map = DMServiceMap::instance()->service_map;
+    _service_id = service_map[servicename];
+
 	auto receiveMessageCallback = [=](const AMQP::Message &message,
 		uint64_t deliveryTag,
 		bool redelivered)
@@ -33,36 +37,41 @@ int DMBrokerProxy::init(std::string host,int port, std::string username, std::st
 	AMQP::QueueCallback callback =
 		[=](const std::string &queue_name, int msgcount, int consumercount)
 	{
-	    //exchange、targetqueue、routingkey
+	    //exchange、targetqueue、routingkey,生产队列，三种exchange绑定所有队列，路由键即队列名
 		_channel->bindQueue("fanout", queue_name, queue_name);
-		_channel->bindQueue("fanout", queue_name, "monitor");
-		_channel->bindQueue("fanout", queue_name, "heartbeat");
         
 		_channel->bindQueue("direct", queue_name, queue_name);
-		_channel->bindQueue("direct", queue_name, "monitor");
-		_channel->bindQueue("direct", queue_name, "heartbeat");
         
 		_channel->bindQueue("topic", queue_name, queue_name);
-		_channel->bindQueue("topic", queue_name, "monitor");
-		_channel->bindQueue("topic", queue_name, "heartbeat");
 
-		_channel->consume(queue_name, AMQP::durable).onReceived(receiveMessageCallback);
+        //消费队列,只消费本server对应的队列
+	    std::map<int, std::vector<std::string>> queue_map = DMServiceMap::instance()->queue_map;
+        std::vector<std::string> consume_queue = queue_map[_service_id];
+
+        for (unsigned int i = 0; i < consume_queue.size(); ++i)
+        {
+            if (consume_queue[i] == queue_name)
+            {
+                _channel->consume(queue_name, AMQP::durable).onReceived(receiveMessageCallback);
+            }
+        }
+        
 	};
 
 	AMQP::SuccessCallback success = [this, callback]()
 	{
-	    std::map<int, std::vector<int>> queue_map = DMServiceMap::instance()->queue_map;
-        std::map<int, std::vector<int>>::iterator svr_it = queue_map.begin();
+	    std::map<int, std::vector<std::string>> queue_map = DMServiceMap::instance()->queue_map;
+        std::map<int, std::vector<std::string>>::iterator svr_it = queue_map.begin();
+
         for (; svr_it != queue_map.end(); ++svr_it)
         {
-            std::vector<int> queue = svr_it->second;
+            std::vector<std::string> queue = svr_it->second;
             for (unsigned int i = 0; i < queue.size(); ++i)
             {
-                std::string strQue_name;
-                ACE_OS::itoa(queue[i], (char*)strQue_name.c_str(), 10);
-                _channel->declareQueue(strQue_name.c_str(), AMQP::durable).onSuccess(callback);
+                _channel->declareQueue(queue[i], AMQP::durable).onSuccess(callback);
             }
-        }       
+        }  
+        
 	};
 
 	//定义三个类型的exchange，根据参数需要选择

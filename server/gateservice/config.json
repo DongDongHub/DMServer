@@ -1,5 +1,5 @@
 {
-    "host_name": "GateServer",
+    "host_name": "gateservice",
     "host_ip": "127.0.0.1",
     "host_port": 4567,
     

@@ -14,7 +14,7 @@ void DMRouter::route(DMMessage& message)
     int svr_id = 0;
     for (; it != message_map.end(); ++it)
     {
-        //依据msg_cmd获取service_id
+        //依据msg_cmd获取service_id,消息直接映射无指定cluster、node场景
         MsgRange range = it->second;
         if (message.head.msg_cmd > range.msg_start &&
                 message.head.msg_cmd < range.msg_end)
@@ -24,10 +24,13 @@ void DMRouter::route(DMMessage& message)
         }
     }
 
+    ACE_DEBUG((LM_INFO,"svr_id = %d\n",svr_id));
+
     if (0 != svr_id)
-    {
-    //将message推送到rabbitmq-server
-    //broker->publish
+    {   
+        ACE_DEBUG((LM_INFO,"publish\n"));
+        //将message推送到rabbitmq-server
+        DMBrokerProxy::getInstance()->publish("direct","100",message.body,message.head.length);
     }
 }
 

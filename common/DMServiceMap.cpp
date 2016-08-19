@@ -55,10 +55,10 @@ void DMServiceMap::load_cfg()
             std::string svr_name = svr_it->first;
             int svr_id = svr_it->second;
             int mq_size = rabbit_queue[svr_name].size();
-            std::vector<int> mq_number;
+            std::vector<std::string> mq_number;
             for (int i = 0; i < mq_size; ++i)
             {
-                mq_number.push_back(rabbit_queue[svr_name][i].asInt());
+                mq_number.push_back(rabbit_queue[svr_name][i].asString());
             }
             queue_map.insert(std::make_pair(svr_id,mq_number));
         }

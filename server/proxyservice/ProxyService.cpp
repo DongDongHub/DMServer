@@ -66,7 +66,7 @@ int ProxyService::init()
 	ACE_INET_Addr addr(_svr_info.host_port, _svr_info.host_ip.c_str());
 	_acceptor.open(addr,ACE_Reactor::instance());
 
-	DMBrokerProxy::getInstance()->init(_brk_info.broker_ip.c_str(),_brk_info.broker_port, _brk_info.broker_user,_brk_info.broker_passwd);
+	DMBrokerProxy::getInstance()->init(_brk_info.broker_ip.c_str(),_brk_info.broker_port, _brk_info.broker_user,_brk_info.broker_passwd,_svr_info.host_name);
 
 	return 1;
 }
