@@ -9,7 +9,9 @@ class ProxySession
 public:
 	ProxySession(Svc_Handler* handle):_handle(handle){};
 
-	short id;
+	short uid;   //uid
+
+    bool enable;
 
 	void bind(Svc_Handler* handle) { _handle = handle; };
 protected:

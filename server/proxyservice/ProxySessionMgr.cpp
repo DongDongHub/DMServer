@@ -1,43 +1,76 @@
 #include "ProxySessionMgr.h"
+#include <ace/Log_Msg.h>
 
-int ProxySessionManager::add_session(ACE_HANDLE fd, ProxySession* pSession)
+int ProxySessionManager::add_session(ACE_HANDLE handle, short uid, ProxySession* pSession)
 {
 	_mutex_lock.acquire();
-	_sessions[fd] = pSession;
+    
+    pSession->uid = uid;
+	_sessions[handle] = pSession;
+    
 	_mutex_lock.release();
+    
 	return 0;
 }
 
-int ProxySessionManager::activate_session(ProxySession* pSession, short uid)
+int ProxySessionManager::activate_session(ACE_HANDLE fd)
 {
 	int ret = -1;
-	ACE_HANDLE fd = find_fd(pSession);
     
-	if (-1 != fd)
+	if (nullptr != find_session(fd))
 	{
-		_sessions[fd]->id = uid;
+		_sessions[fd]->enable = true;
 		ret = 0;
 	}
     
 	return ret;
 }
 
-int ProxySessionManager::activate_session(ACE_HANDLE fd, short uid)
+int ProxySessionManager::deactivate_session(ACE_HANDLE fd)
 {
 	int ret = -1;
     
 	if (nullptr != find_session(fd))
 	{
-		_sessions[fd]->id = uid;
+		_sessions[fd]->enable = false;
 		ret = 0;
 	}
+    
+	return ret;
+}
+
+int ProxySessionManager::activate_session(short uid)
+{
+	int ret = -1;
+
+    ProxySession* pSession = find_session(uid);
+	if (nullptr != pSession)
+	{
+		pSession->enable = true;
+		ret = 0;
+	}
+    
+	return ret;
+}
+
+int ProxySessionManager::deactivate_session(short uid)
+{
+	int ret = -1;
+    
+    ProxySession* pSession = find_session(uid);
+	if (nullptr != pSession)
+	{
+		pSession->enable = false;
+		ret = 0;
+	}
+
     
 	return ret;
 }
 
 ProxySession* ProxySessionManager::find_session(ACE_HANDLE fd)
 {
-	std::map<short, ProxySession*>::iterator it = _sessions.find(fd);
+	std::map<ACE_HANDLE, ProxySession*>::iterator it = _sessions.find(fd);
     
 	if (it != _sessions.end())
 	{
@@ -47,18 +80,29 @@ ProxySession* ProxySessionManager::find_session(ACE_HANDLE fd)
 	return nullptr;
 }
 
-ACE_HANDLE ProxySessionManager::find_fd(ProxySession* pSession)
+ProxySession* ProxySessionManager::find_session(short uid)
 {
-	std::map<short, ProxySession*>::iterator it = _sessions.begin();
+    std::map<ACE_HANDLE, ProxySession*>::iterator it = _sessions.begin();
+    for (; it != _sessions.end(); ++it)
+    {
+        ProxySession* pSession = it->second;
+        if (uid == pSession->uid)
+        {
+            return it->second;
+        }
+    }
+    return nullptr;
+}
+
+ACE_HANDLE ProxySessionManager::find_fd(short uid)
+{
+	ProxySession* pSession = find_session(uid);
     
-	for (; it != _sessions.end(); ++ it)
-	{
-		if (it->second == pSession)
-		{
-			return it->first;
-		}
-	}
-    
+    if (nullptr != pSession)
+    {
+        return pSession->uid;
+    }
+        
 	return -1;
 }
 
@@ -76,23 +120,30 @@ int ProxySessionManager::del_session(ACE_HANDLE fd)
 	}
     
 	_mutex_lock.release();
+    
 	return ret;
 }
 
-int ProxySessionManager::del_session(ProxySession* pSession)
+int ProxySessionManager::del_session(short uid)
 {
 	_mutex_lock.acquire();
     
 	int ret = -1;
-    
-	ACE_HANDLE fd = find_fd(pSession);
-	if (-1 != fd)
-	{	
-        delete _sessions[fd];
-		_sessions.erase(fd);
-		ret = 0;
-	}
+
+    std::map<ACE_HANDLE, ProxySession*>::iterator it = _sessions.begin();
+    for (; it != _sessions.end(); ++it)
+    {
+        ProxySession* pSession = it->second;
+        if (uid == pSession->uid)
+        {
+            delete it->second;
+            _sessions.erase(it);
+            ret = 0;
+        }
+    }
     
 	_mutex_lock.release();
+    
 	return ret;
 }
+

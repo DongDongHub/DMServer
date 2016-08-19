@@ -117,8 +117,8 @@ int GateServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 
 bool GateServiceHandle::recv_client_data(DMMessage &msg)
 {
-	char head[DMMessageParser::HEAD_CHAR_LEN] = {0};
-	peer().recv(head,DMMessageParser::HEAD_CHAR_LEN);
+	char head[HEAD_CHAR_LEN] = {0};
+	peer().recv(head,HEAD_CHAR_LEN);
 	
 	DMMessageParser parser;
 	DMMessageHead head_info;
@@ -143,13 +143,13 @@ bool GateServiceHandle::recv_client_data(DMMessage &msg)
 void GateServiceHandle::send_client_data(DMMessage &msg)
 {
 	DMMessageParser parser;
-	char *buf = new char[DMMessageParser::HEAD_CHAR_LEN + msg.head.length];
+	char *buf = new char[HEAD_CHAR_LEN + msg.head.length];
 
 	//pack msg
 	parser.pack(msg,buf);
 
 	//send
-	peer().send_n(buf,DMMessageParser::HEAD_CHAR_LEN + msg.head.length);
+	peer().send_n(buf,HEAD_CHAR_LEN + msg.head.length);
 
 	delete[] buf;
 }

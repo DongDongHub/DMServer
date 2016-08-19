@@ -1,5 +1,7 @@
 #pragma once
 #include "DMRouter.h"
+#include "DMServiceMap.h"
+#include "ProxySessionMgr.h"
 
 class ProxyRouter:public DMRouter
 {
@@ -7,7 +9,15 @@ public:
 	//添加路由消息到客户端的能力,服务器间路由基类实现
 	virtual void route(DMMessage& message, std::string exchange) override
 	{
-		//throw std::exception("The method or operation is not implemented.");
+	    std::map<std::string, int> service_map = DMServiceMap::instance()->service_map;
+		if (service_map["appclient"] == message.head.to)
+        {
+            ACE_HANDLE app_fd = ProxySessionMgr::instance()->find_fd(message.head.user_id);
+            ACE_SOCK_Stream peer(app_fd);
+            peer.send_n(message.body,HEAD_CHAR_LEN + message.head.length);
+            return;
+        }      
+        
 		DMRouter::route(message, exchange);
 	}
 

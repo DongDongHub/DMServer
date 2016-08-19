@@ -45,6 +45,13 @@ enum msg_flge    //公共flag标记
 	MSG_MASK      = 0xFE,
 };
 
+enum DataSize
+{
+    HEAD_BIT_LEN = 128,
+    HEAD_CHAR_LEN = 16,
+    CHAR_BIT_LEN = 8
+};
+
 #pragma pack (1)
 class DMMessageHead
 {

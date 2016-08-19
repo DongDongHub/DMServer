@@ -1,6 +1,7 @@
 {
     "service_id": 
         {
+            "appclient":    20,
             "gateservice":  21,
             "proxyservice": 22,
             "loginservice": 23,

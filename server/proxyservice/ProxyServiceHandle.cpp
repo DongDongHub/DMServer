@@ -50,7 +50,7 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 	case LOGIN_MSG:
 		{         
             ACE_DEBUG((LM_INFO,"RECIVE LOGIN_MSG!\n"));
-			user_connect(fd);  
+			user_connect(fd, client_msg.head.user_id);  
             
 			DMMessage server_msg;
             server_msg = client_msg;
@@ -87,8 +87,8 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
 	
 bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 {
-	char head[DMMessageParser::HEAD_CHAR_LEN] = {0};
-	if (peer().recv(head,DMMessageParser::HEAD_CHAR_LEN) < 1)
+	char head[HEAD_CHAR_LEN] = {0};
+	if (peer().recv(head,HEAD_CHAR_LEN) < 1)
     {
         user_disconnect(peer().get_handle());
         return false;
@@ -119,9 +119,9 @@ bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
 	return true;
 }
 
-void ProxyServiceHandle::user_connect(ACE_HANDLE fd)
+void ProxyServiceHandle::user_connect(ACE_HANDLE fd, short uid)
 {
-    ProxySessionMgr::instance()->add_session(fd, new ProxySession(this));//fd作为sessionid
+    ProxySessionMgr::instance()->add_session(fd, uid, new ProxySession(this));//fd作为sessionid
 }
 
 void ProxyServiceHandle::user_disconnect(ACE_HANDLE fd)

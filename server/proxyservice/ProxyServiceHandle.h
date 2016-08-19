@@ -18,7 +18,7 @@ public:
 
 	bool recv_client_data(DMMessage &msg);
 
-    void user_connect(ACE_HANDLE fd);
+    void user_connect(ACE_HANDLE fd, short uid);
 
     void user_disconnect(ACE_HANDLE fd);
 

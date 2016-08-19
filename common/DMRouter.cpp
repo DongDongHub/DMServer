@@ -37,7 +37,7 @@ void DMRouter::route(DMMessage& message, std::string exchange)
     if (0 != svr_id)
     {   
         //½«messageÍÆËÍµ½rabbitmq-server
-        DMBrokerProxy::getInstance()->publish("direct","100",message.body,message.head.length);
+        DMBrokerProxy::getInstance()->publish(exchange,"100",message.body,message.head.length);
     }
 }
 
