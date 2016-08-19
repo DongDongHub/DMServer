@@ -107,7 +107,7 @@ bool ProxyServiceHandle::recv_client_data(DMMessage &msg)
     	}
 
     	//recive body
-    	msg.body = new char[head_info.length];
+    	msg.require_body_size(head_info.length);
     	memset(msg.body,0,head_info.length);
     	peer().recv(msg.body,head_info.length);
         

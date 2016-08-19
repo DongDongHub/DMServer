@@ -83,7 +83,7 @@ char* MemoryPool::require(int size)
 }
 
 /*
-   size²ÎÊý´óÐ¡±ØÐëÓëÉêÇë´óÐ¡±£³ÖÒ»ÖÂ
+   size2?êy′óD?±?D?ó?éê??′óD?±￡3?ò???
 */
 void MemoryPool::release(int size,char* block)
 {
@@ -152,7 +152,7 @@ MemoryBlock::MemoryBlock():_used(false),_block(nullptr)
 }
 
 void MemoryBlock::make_block(int size)
-{
+{  
 	_block = MemoryPool::instance()->alloc_memory(size);
 }
 

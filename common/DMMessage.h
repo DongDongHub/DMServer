@@ -1,4 +1,5 @@
 #pragma once
+#include "MemoryPool.h"
 
 /*-------------------------------------------------------------------------------
             msg head:
@@ -88,14 +89,25 @@ public:
 	{
 		body = nullptr;
 	}
-	~DMMessage()
+    
+    ~DMMessage()
 	{
-		if (nullptr != body)
-		{
-			delete[] body;
-		}
+		release_body_size();
 	}
+    
+    void require_body_size(short size)
+    {
+        _body_size = size;
+        body = MemoryPool::instance()->require(size);
+    }
+    
+    void release_body_size()
+    {
+        MemoryPool::instance()->release(_body_size,body);
+    }
     
 	DMMessageHead head;
 	char* body;
+private:
+    short _body_size;
 }; 
