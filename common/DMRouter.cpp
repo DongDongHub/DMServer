@@ -24,11 +24,8 @@ void DMRouter::route(DMMessage& message)
         }
     }
 
-    ACE_DEBUG((LM_INFO,"svr_id = %d\n",svr_id));
-
     if (0 != svr_id)
     {   
-        ACE_DEBUG((LM_INFO,"publish\n"));
         //½«messageÍÆËÍµ½rabbitmq-server
         DMBrokerProxy::getInstance()->publish("direct","100",message.body,message.head.length);
     }
