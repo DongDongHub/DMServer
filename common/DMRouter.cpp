@@ -41,11 +41,52 @@ void DMRouter::route(DMMessage& message, std::string exchange)
 
     if (0 != svr_id)
     {   
-        std::map<int, std::vector<std::string>> queue_map = DMServiceMap::instance()->queue_map;
-        std::vector<std::string> queue = queue_map[svr_id];
         //将message推送到rabbitmq-server，依据路由表选择或选择消息最少的队列
-        //消息直接负载映射无指定cluster、node场景
-        DMBrokerProxy::getInstance()->publish(exchange,queue[0],message.body,message.head.length);
+        
+        //route_assign(message, svr_id, exchange);
+        
+        route_distribute(message, svr_id, exchange);
+        
     }
+}
+
+bool DMRouter::route_assign(DMMessage& message, int service_id, std::string exchange)
+{
+    DMMessageParser parser;
+    //pack msg
+    char *buf = new char[HEAD_CHAR_LEN + message.head.length];
+    parser.pack(message,buf);
+    
+    return true;
+}
+
+void DMRouter::route_distribute(DMMessage& message, int service_id, std::string exchange)
+{
+    DMMessageParser parser;
+    //pack msg
+    char *buf = new char[HEAD_CHAR_LEN + message.head.length];
+    parser.pack(message,buf);
+    
+    //消息直接负载映射无指定cluster、node场景
+    std::map<int, std::vector<std::string>> queue_map = DMServiceMap::instance()->queue_map;
+    std::vector<std::string> queue = queue_map[service_id];
+    std::vector<std::string>::iterator it = queue.begin();
+    //第一个队列作为初始化值
+    std::string queueName = *it;
+    int msgCount = DMBrokerProxy::getInstance()->getQueueMsgCount(queueName);
+
+    for (; it != queue.end(); ++it)
+    {
+        int size = DMBrokerProxy::getInstance()->getQueueMsgCount(queueName);
+        if (msgCount > size)
+        {
+            queueName = *it;
+            msgCount = size;
+        }
+    }
+    
+    DMBrokerProxy::getInstance()->publish(exchange, queueName, buf, HEAD_CHAR_LEN + message.head.length);
+
+    delete[] buf;
 }
 

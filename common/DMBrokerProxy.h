@@ -15,11 +15,13 @@ public:
 		return _instance;
 	}
     //依据配置尝试创建所有队列，取消svrid入参
-	int init(std::string host, int port, std::string username,std::string userpasswd,std::string servicename);
+	int init(std::string host, int port, std::string username,std::string userpasswd,std::string serviceName);
 
 	void publish(const std::string &exchange, const std::string &routingKey, const char *message, size_t size);
 
-	void runEvents();
+    int getQueueMsgCount(std::string queueName);
+
+    void runEvents();
 
 	void destroy();
 	//AMQP::Channel& getChannel();

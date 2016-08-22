@@ -8,7 +8,7 @@ extern DMService* GetService();
 
 DMBrokerProxy* DMBrokerProxy::_instance = NULL;
 
-int DMBrokerProxy::init(std::string host,int port, std::string username, std::string userpasswd,std::string servicename)
+int DMBrokerProxy::init(std::string host,int port, std::string username, std::string userpasswd,std::string serviceName)
 {
 	// create an instance of your own tcp handler
 	_handle = new DMBrokerMessageHandle();
@@ -24,7 +24,7 @@ int DMBrokerProxy::init(std::string host,int port, std::string username, std::st
 
     //get service id
     std::map<std::string, int> service_map = DMServiceMap::instance()->service_map;
-    _service_id = service_map[servicename];
+    _service_id = service_map[serviceName];
 
 	auto receiveMessageCallback = [=](const AMQP::Message &message,
 		uint64_t deliveryTag,
@@ -88,6 +88,20 @@ int DMBrokerProxy::init(std::string host,int port, std::string username, std::st
 void DMBrokerProxy::publish(const std::string &exchange, const std::string &routingKey, const char *message, size_t size)
 {
 	_channel->publish(exchange, routingKey, message, size);
+}
+
+int DMBrokerProxy::getQueueMsgCount(std::string queueName)
+{
+    int count = 0;
+    AMQP::QueueCallback callback =
+            [&](const std::string &queue_name, int msgcount, int consumercount)
+    {
+        count = msgcount;
+    };
+
+    _channel->declareQueue(queueName, AMQP::passive).onSuccess(callback);
+
+    return count;
 }
 
 void DMBrokerProxy::runEvents()
