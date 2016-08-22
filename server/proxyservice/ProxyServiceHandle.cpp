@@ -22,16 +22,39 @@ void ProxyServiceHandle::handle(const AMQP::Message &message)
 	}
 		
 	//pb decode
-
-	switch (req_msg.head.msg_cmd)
+	switch (req_msg.head.flag & MSG_MASK)
 	{
-	case STOP_SERVER:
-		{
-			ACE_Reactor::instance()->end_reactor_event_loop();
+	case LOGIN_MSG: //login result from login server
+		{         
+            //激活session，首次登录用户带cluster、node数据做路由表维护
+            if (true)   //if login success
+            {
+                user_activate(req_msg);
+            }
+            else
+            {
+                user_disconnect(req_msg.head.user_id);
+            }
+            
+            ProxyService::instance()->dispatch(req_msg);
+            
+			break;
 		}
-		//停服
-	default:
-		break;
+	case HEARTBEAT_MSG:
+		{
+			break;
+		}
+	case SERVICE_MSG:
+		{
+            //服务间业务消息转发
+            ProxyService::instance()->dispatch(req_msg);
+            
+			break;
+		}
+    case MAINT_MSG:
+        {
+            maintain_service(req_msg.head.msg_cmd);
+        }
 	}
 }
 
@@ -70,14 +93,6 @@ int ProxyServiceHandle::handle_input(ACE_HANDLE fd /*= ACE_INVALID_HANDLE*/)
             
             ProxyService::instance()->dispatch(server_msg);
             
-			break;
-		}
-	case NOTIFY_MSG:
-		{
-			break;
-		}
-	case MAINT_MSG:
-		{
 			break;
 		}
 	}
@@ -130,6 +145,12 @@ void ProxyServiceHandle::user_disconnect(ACE_HANDLE fd)
     handle_close();
 }
 
+
+void ProxyServiceHandle::user_activate(DMMessage &msg)
+{
+    ProxySessionMgr::instance()->activate_session(msg.head.user_id);
+}
+
 int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 {
 	ACE_Reactor *pReactor = Reactor_Pool::instance()->pull();
@@ -145,5 +166,19 @@ int ProxyServiceHandle::open(void *acceptor_or_connector /*= 0*/)
 	}
 
 	return 0;
+}
+
+void ProxyServiceHandle::maintain_service(short cmd)
+{
+    switch (cmd)
+	{
+	case STOP_SERVER:
+		{
+			ACE_Reactor::instance()->end_reactor_event_loop();
+		}
+		//停服
+	default:
+		break;
+	}
 }
 

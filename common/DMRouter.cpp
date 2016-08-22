@@ -8,6 +8,12 @@
 
 void DMRouter::send(DMMessage& message, std::string exchange)
 {
+    //有路由表数据需要维护该用户路由表信息,需要维护redis内存数据
+    if (0 != message.head.cluster_id && 0 != message.head.node_id)
+    {
+    
+    }
+    
     route(message, exchange);
 }
 
@@ -24,7 +30,6 @@ void DMRouter::route(DMMessage& message, std::string exchange)
     int svr_id = 0;
     for (; it != message_map.end(); ++it)
     {
-        //依据msg_cmd获取service_id,消息直接映射无指定cluster、node场景
         MsgRange range = it->second;
         if (message.head.msg_cmd > range.msg_start &&
                 message.head.msg_cmd < range.msg_end)
@@ -36,8 +41,11 @@ void DMRouter::route(DMMessage& message, std::string exchange)
 
     if (0 != svr_id)
     {   
-        //将message推送到rabbitmq-server
-        DMBrokerProxy::getInstance()->publish(exchange,"100",message.body,message.head.length);
+        std::map<int, std::vector<std::string>> queue_map = DMServiceMap::instance()->queue_map;
+        std::vector<std::string> queue = queue_map[svr_id];
+        //将message推送到rabbitmq-server，依据路由表选择或选择消息最少的队列
+        //消息直接负载映射无指定cluster、node场景
+        DMBrokerProxy::getInstance()->publish(exchange,queue[0],message.body,message.head.length);
     }
 }
 
