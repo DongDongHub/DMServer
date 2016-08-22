@@ -98,9 +98,13 @@ ACE_HANDLE ProxySessionManager::find_fd(short uid)
 {
 	ProxySession* pSession = find_session(uid);
     
-    if (nullptr != pSession)
+    std::map<ACE_HANDLE, ProxySession*>::iterator it = _sessions.begin();
+    for (; it != _sessions.end(); ++it)
     {
-        return pSession->uid;
+        if (pSession == it->second)
+        {
+            return it->first;
+        }
     }
         
 	return -1;

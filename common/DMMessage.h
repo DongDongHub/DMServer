@@ -113,6 +113,14 @@ public:
         MemoryPool::instance()->release(_body_size,body);
     }
     
+    DMMessage& operator=(DMMessage other)
+    {
+        this->head = other.head;
+        this->body = other.body;
+        this->_body_size = other._body_size;
+        return *this;
+    }
+    
 	DMMessageHead head;
 	char* body;
 private:

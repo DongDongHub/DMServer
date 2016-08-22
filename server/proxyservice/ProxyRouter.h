@@ -2,6 +2,8 @@
 #include "DMRouter.h"
 #include "DMServiceMap.h"
 #include "ProxySessionMgr.h"
+#include "DMMessageParser.h"
+#include <ace/Log_Msg.h>
 
 class ProxyRouter:public DMRouter
 {
@@ -10,11 +12,18 @@ public:
 	virtual void route(DMMessage& message, std::string exchange) override
 	{
 	    std::map<std::string, int> service_map = DMServiceMap::instance()->service_map;
-		if (service_map["appclient"] == message.head.to)
+        //send to app
+        if (service_map["appclient"] == message.head.to)
         {
             ACE_HANDLE app_fd = ProxySessionMgr::instance()->find_fd(message.head.user_id);
             ACE_SOCK_Stream peer(app_fd);
-            peer.send_n(message.body,HEAD_CHAR_LEN + message.head.length);
+            DMMessageParser parser;
+            //pack msg
+            char *buf = new char[HEAD_CHAR_LEN + message.head.length];
+            parser.pack(message,buf);
+            peer.send_n(buf,HEAD_CHAR_LEN + message.head.length);
+            
+            delete[] buf;
             return;
         }      
         
