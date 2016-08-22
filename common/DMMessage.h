@@ -1,5 +1,5 @@
 #pragma once
-#include "MemoryPool.h"
+#include "DMMemoryPool.h"
 
 /*-------------------------------------------------------------------------------
             msg head:
@@ -105,12 +105,12 @@ public:
     void require_body_size(short size)
     {
         _body_size = size;
-        body = MemoryPool::instance()->require(size);
+        body = DMMemoryPool::instance()->require(size);
     }
     
     void release_body_size()
     {
-        MemoryPool::instance()->release(_body_size,body);
+        DMMemoryPool::instance()->release(_body_size,body);
     }
     
     DMMessage& operator=(DMMessage other)
