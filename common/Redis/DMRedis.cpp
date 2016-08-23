@@ -2,14 +2,17 @@
 #include <ace/Log_Msg.h>
 #include "DMRedis.h"
 
-DMRedis::DMRedis()
+DMRedis::DMRedis():_redis_ctx(NULL)
 {
 
 }
 
 DMRedis::~DMRedis()
 {
-
+    if (NULL != _redis_ctx)
+    {
+        disconnect_redis();
+    }
 }
 
 bool DMRedis::init(std::string ip, int port)
@@ -42,6 +45,7 @@ bool DMRedis::conncet_redis(std::string ip, int port)
 void DMRedis::disconnect_redis()
 {
     redisFree(_redis_ctx);
+    _redis_ctx = NULL;
 }
 
 bool DMRedis::write_redis(std::string cmd)
