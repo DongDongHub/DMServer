@@ -7,16 +7,16 @@ ENV_CPP = Environment(CC = 'g++')
 
 #compile info
 TARGETNAME = 'proxyservice'
-LIB = Split('ACE pthread libBroker jsoncpp protobuf amqpcpp DMMessage')
+LIB = Split('DMRabbitMQ DMFramework DMMessage ACE pthread jsoncpp protobuf amqpcpp')
 FILELIST = Glob('*.cpp')
 FILELIST = FILELIST
-HEADFILEPATH = Split('../../3rd ../../common ../../message ../../3rd/amqpcpp')
-LIB_DIR = Split('../../common ../../message')
+HEADFILEPATH = Split('../../3rd ../../common/Framework ../../common/RabbitMQ ../../message ../../3rd/amqpcpp')
+LIB_DIR = Split('../../common/Lib ../../message')
 FLAGS = Split('-std=c++11 -Wall -g -D _DEBUG')
 
 #Program target
 TARGETFILE = ENV_CPP.Program(target = TARGETNAME,source = FILELIST,LIBS = LIB,CPPPATH = HEADFILEPATH,LIBPATH = LIB_DIR,CCFLAGS = FLAGS)
 
 #install
-INSTALL = ENV_CPP.Install('../bin', TARGETFILE)
-ENV_CPP.Alias('release',INSTALL)
+INSTALL = ENV_CPP.Install('../../bin', TARGETFILE)
+ENV_CPP.Alias('install',INSTALL)

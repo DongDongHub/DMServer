@@ -3,7 +3,7 @@
 #include <map>
 #include "ace/Thread_Mutex.h"
 
-#define SERVICE_MAP_PATH "..//..//common//MsgRoute.json"
+#define SERVICE_MAP_PATH "..//..//common//Framework//MsgRoute.json"
 
 typedef struct msg_range
 {
