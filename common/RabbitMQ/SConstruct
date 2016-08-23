@@ -4,7 +4,7 @@ TARGETNAME = 'DMRabbitMQ'
 
 FILELIST = Glob('*.cpp') 
 
-HEADFILEPATH = Split('../../3rd ../../3rd/amqpcpp ../Framework')
+HEADFILEPATH = Split('../../3rd ../../3rd/amqpcpp ../Framework ../Redis')
 
 FLAGS = Split('-std=c++11 -Wall')
 

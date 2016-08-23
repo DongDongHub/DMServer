@@ -1,6 +1,7 @@
 #pragma once
 #include "DMMessage.h"
 #include "DMServiceMap.h"
+#include "DMRedis.h"
 //消息路由器。将服务器消息路由到消息服务器
 //对于普通服务，直接使用就可。 对于proxyServer，需要重载，添加路由到客户端的能力。
 
@@ -24,4 +25,8 @@ private:
     bool route_assign(DMMessage& message, int service_id, std::string exchange);
 
     void route_distribute(DMMessage& message, int service_id, std::string exchange);
+
+private:
+    DMRedis _redis;
 };
+

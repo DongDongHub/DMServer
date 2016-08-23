@@ -1,10 +1,11 @@
-#include "hiredis/hiredis.h"
+#include "json/json.h"
+#include <fstream>
 #include <ace/Log_Msg.h>
 #include "DMRedis.h"
 
 DMRedis::DMRedis():_redis_ctx(NULL)
 {
-
+    init();
 }
 
 DMRedis::~DMRedis()
@@ -15,9 +16,39 @@ DMRedis::~DMRedis()
     }
 }
 
-bool DMRedis::init(std::string ip, int port)
+bool DMRedis::load_redis_config()
 {
-    return conncet_redis(ip, port);
+    std::ifstream cfg_file;
+    cfg_file.open(REDIS_CFG_FILE, std::ios::binary);
+
+    if (!cfg_file.is_open())
+    { 
+        return 0;
+    }
+
+    Json::Reader Reader;
+    Json::Value Root;
+
+    if (Reader.parse(cfg_file,Root))
+    {
+        _redis_cfg.ip = Root["redis_ip"].asString();
+        _redis_cfg.port= Root["redis_port"].asInt();
+    }
+    else
+    {
+        ACE_DEBUG((LM_ERROR,"parse redis config file failure!\n"));    
+        return false;
+    }
+    
+    return true;
+}
+
+void DMRedis::init()
+{
+    if (load_redis_config())
+    {
+        conncet_redis(_redis_cfg.ip, _redis_cfg.port);
+    }
 }
 
 bool DMRedis::conncet_redis(std::string ip, int port)
@@ -38,7 +69,7 @@ bool DMRedis::conncet_redis(std::string ip, int port)
         
         return false;
     }
-    
+
     return true;
 }
 
