@@ -23,6 +23,11 @@ os.system("scons -Q install")
 os.chdir("../RabbitMQ")
 os.system("scons -Q install")
 
+#print "cd ../common/Redis\n"
+#print "start build common lib...\n"
+os.chdir("../Redis")
+os.system("scons -Q install")
+
 #print "cd ../server/geteservice\n"
 #print "start build GateService...\n"
 os.chdir("../../server/gateservice")
