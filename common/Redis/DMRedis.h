@@ -16,9 +16,15 @@ public:
     DMRedis();
     ~DMRedis();
 
-    bool write_redis(std::string cmd);
+    bool write_redis_cmd(std::string cmd);
 
-    bool write_redis(std::string key, std::string value);
+    std::string read_redis_cmd(std::string cmd);
+
+    bool write_redis_string(std::string keys, std::string value);
+
+    std::string read_redis_string(std::string keys);
+
+    bool ping_redis();
     
 private:
     bool load_redis_config();
@@ -33,3 +39,4 @@ private:
     redisContext *_redis_ctx;
     redis_cfg _redis_cfg;
 };
+

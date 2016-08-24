@@ -79,7 +79,7 @@ void DMRedis::disconnect_redis()
     _redis_ctx = NULL;
 }
 
-bool DMRedis::write_redis(std::string cmd)
+bool DMRedis::write_redis_cmd(std::string cmd)
 {
     if (NULL == redisCommand(_redis_ctx, cmd.c_str()))
     {
@@ -89,8 +89,44 @@ bool DMRedis::write_redis(std::string cmd)
     return true;
 }
 
-bool DMRedis::write_redis(std::string key, std::string value)
+std::string DMRedis::read_redis_cmd(std::string cmd)
 {
+    redisReply *reply;
+    reply = (redisReply*)redisCommand(_redis_ctx, cmd.c_str());
+    freeReplyObject(reply);
+    return reply->str;
+}
+
+bool DMRedis::write_redis_string(std::string keys, std::string value)
+{
+    if (NULL == redisCommand(_redis_ctx, "SET %s %s", keys.c_str(),value.c_str()))
+    {
+        ACE_DEBUG((LM_ERROR,"redis write %s failure!\n", keys.c_str()));
+        return false;
+    }
     return true;
+}
+
+std::string DMRedis::read_redis_string(std::string keys)
+{
+    redisReply *reply;
+    reply = (redisReply*)redisCommand(_redis_ctx, "GET %s", keys.c_str());
+    freeReplyObject(reply);
+    return reply->str;
+}
+
+bool DMRedis::ping_redis()
+{
+    redisReply *reply;
+    reply = (redisReply*)redisCommand(_redis_ctx, "ping");
+
+    std::string result = reply->str;
+    if ("pong" == result)
+    {
+        return true;
+    }
+    
+    ACE_DEBUG((LM_ERROR,"redis disconnected!\n"));
+    return false;
 }
 
