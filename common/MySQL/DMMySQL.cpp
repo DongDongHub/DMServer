@@ -3,7 +3,7 @@
 #include <ace/Log_Msg.h>
 #include "DMMySQL.h"
 
-DMMySQL::DMMySQL():_conn(false)
+DMMySQL::DMMySQL()
 {
     init();
 }

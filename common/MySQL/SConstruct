@@ -6,7 +6,7 @@ FILELIST = Glob('*.cpp')
 
 HEADFILEPATH = Split('../../3rd ../../3rd/amqpcpp ../../3rd/mysqlpp/lib ../../3rd/mysql-connector-c/include')
 
-FLAGS = Split('-Wall')
+FLAGS = Split('-std=c++11 -Wall')
 
 TARGETFILE = StaticLibrary(target = TARGETNAME,source = FILELIST,CPPPATH = HEADFILEPATH,CCFLAGS = FLAGS)
 

@@ -28,6 +28,11 @@ os.system("scons -Q install")
 os.chdir("../Redis")
 os.system("scons -Q install")
 
+#print "cd ../common/MySQL\n"
+#print "start build common lib...\n"
+os.chdir("../MySQL")
+os.system("scons -Q install")
+
 #print "cd ../server/geteservice\n"
 #print "start build GateService...\n"
 os.chdir("../../server/gateservice")
