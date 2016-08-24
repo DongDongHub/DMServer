@@ -136,10 +136,10 @@ std::string DMRedis::read_redis_hash(std::string keys, std::string domain)
 bool DMRedis::ping_redis()
 {
     redisReply *reply;
-    reply = (redisReply*)redisCommand(_redis_ctx, "ping");
+    reply = (redisReply*)redisCommand(_redis_ctx, "PING");
 
     std::string result = reply->str;
-    if ("pong" == result)
+    if ("PONG" == result)
     {
         return true;
     }
