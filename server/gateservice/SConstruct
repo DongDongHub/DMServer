@@ -7,10 +7,10 @@ ENV_CPP = Environment(CC = 'g++')
 
 #compile info
 TARGETNAME = 'gateservice'
-LIB = Split('DMRabbitMQ DMFramework DMMessage DMRedis ACE pthread jsoncpp protobuf amqpcpp hiredis')
+LIB = Split('DMRabbitMQ DMFramework DMMessage DMRedis ACE pthread jsoncpp protobuf amqpcpp hiredis mysqlpp')
 FILELIST = Glob('*.cpp')
 FILELIST = FILELIST
-HEADFILEPATH = Split('../../3rd ../../common/Framework ../../common/RabbitMQ ../../common/Redis ../../message ../../3rd/amqpcpp')
+HEADFILEPATH = Split('../../3rd ../../common/Framework ../../common/RabbitMQ ../../common/Redis ../../common/MySQL ../../message ../../3rd/amqpcpp ../../3rd/mysqlpp/lib')
 LIB_DIR = Split('../../common/Lib ../../message')
 FLAGS = Split('-std=c++11 -Wall -g -D _DEBUG')
 

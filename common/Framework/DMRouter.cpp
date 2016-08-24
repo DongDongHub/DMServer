@@ -11,7 +11,7 @@ void DMRouter::send(DMMessage& message, std::string exchange)
     //有路由表数据需要维护该用户路由表信息,需要维护redis内存数据
     if (0 != message.head.cluster_id && 0 != message.head.node_id)
     {
-    
+        //_redis.write_redis_hash("TBL_ROUTE" , message.head.user_id, );
     }
     
     route(message, exchange);

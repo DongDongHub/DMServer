@@ -1,0 +1,6 @@
+{
+    "mysql_ip": "127.0.0.1",
+    "mysql_user": "admin",
+    "mysql_passwd": "admin",
+    "database_name": "server"
+}
