@@ -149,18 +149,14 @@ bool DMMySQL::read_mysql(std::string table_name, mysql_table& table_data)
     {
         return false;
     }
-
-    for (int i = 0; i < field_num; ++i)
+    //mysql++ field_type.name 内部数据类型直接转换函数使用的typeid在g++环境下不理想，使用sql_name做转换
+    for (int i = 0; i < field_num; ++i) //数据列   
     {
-        ACE_DEBUG((LM_INFO,"%s\n",res.field_name(i).c_str()));
+        ACE_DEBUG((LM_INFO,"%s\n%s\n",res.field_name(i).c_str(),res.field_type(i).sql_name()));
+        //mysqlpp::Row row = res[i]; //数据行
+        //ACE_DEBUG((LM_INFO,"row.begin = %d\n",row.size()));
+        //mysqlpp::Row row = res[i];
     }
-    /*
-    std::string field_name = res.field_name(i);
-            mysql_field field_data;
-            while (mysqlpp::Row row = res.fetch_row()) 
-            {
-                        
-            }*/
 
     return true;
 }
