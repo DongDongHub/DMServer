@@ -97,32 +97,12 @@ std::string DMRedis::read_redis_cmd(std::string cmd)
     return reply->str;
 }
 
-bool DMRedis::write_redis_string(std::string keys, std::string value)
-{
-    if (NULL == redisCommand(_redis_ctx, "SET %s %s", keys.c_str(),value.c_str()))
-    {
-        ACE_DEBUG((LM_ERROR,"redis write %s failure!\n", keys.c_str()));
-        return false;
-    }
-    return true;
-}
-
 std::string DMRedis::read_redis_string(std::string keys)
 {
     redisReply *reply;
     reply = (redisReply*)redisCommand(_redis_ctx, "GET %s", keys.c_str());
     freeReplyObject(reply);
     return reply->str;
-}
-
-bool DMRedis::write_redis_hash(std::string keys, std::string domain, std::string value)
-{
-    if (NULL == redisCommand(_redis_ctx, "HSET %s %s %s", keys.c_str(), domain.c_str(), value.c_str()))
-    {
-        ACE_DEBUG((LM_ERROR,"redis write %s failure!\n", keys.c_str()));
-        return false;
-    }
-    return true;
 }
 
 std::string DMRedis::read_redis_hash(std::string keys, std::string domain)

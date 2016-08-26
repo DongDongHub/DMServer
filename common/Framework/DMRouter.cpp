@@ -8,10 +8,14 @@
 
 void DMRouter::send(DMMessage& message, std::string exchange)
 {
-    //有路由表数据需要维护该用户路由表信息,需要维护redis内存数据
+    //有路由表数据需要维护该用户路由表信息,需要维护redis内存数据和mysql数据
     if (0 != message.head.cluster_id && 0 != message.head.node_id)
     {
-        //_redis.write_redis_hash("TBL_ROUTE" , message.head.user_id, );
+        std::string domain = _redis.pack_domain(message.head.user_id, "cluster_id");
+        _redis.write_redis_hash("TBL_ROUTE" , domain, message.head.cluster_id);
+        
+        domain = _redis.pack_domain(message.head.user_id, "node_id");
+        _redis.write_redis_hash("TBL_ROUTE" , domain, message.head.node_id);
     }
     
     route(message, exchange);
