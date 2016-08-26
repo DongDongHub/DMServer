@@ -4,6 +4,27 @@
 #include "DMMySQL.h"
 #include <cxxabi.h>
 
+#define TRY_SQL \
+    try{
+    
+#define CATCH_SQL_ERROR \
+}\
+catch(const mysqlpp::BadQuery& error)\
+{\
+    ACE_DEBUG((LM_ERROR,"MySQL Query error:%s!\n",error.what()));\
+    return false;\
+}\
+catch (const mysqlpp::BadConversion& error)\
+{\
+    ACE_DEBUG((LM_ERROR,"MySQL Conversion error:%s!\n",error.what()));\
+    return false;\
+}\
+catch (const mysqlpp::Exception& error)\
+{\
+    ACE_DEBUG((LM_ERROR,"MySQL Exception error:%s!\n",error.what()));\
+    return false;\
+}
+
 DMMySQL::DMMySQL()
 {
     init();
@@ -104,8 +125,9 @@ void DMMySQL::show_databases_info(int flag, std::vector<std::string>& databases)
     }
 }
 
-void DMMySQL::get_table_desc(std::string table_name, mysql_table_info& tbl_info)
+bool DMMySQL::get_table_desc(std::string table_name, mysql_table_info& tbl_info)
 {
+    TRY_SQL
     std::string opration = "describe " + table_name;    
     mysqlpp::Query query = _conn.query(opration);
     mysqlpp::StoreQueryResult res = query.store();
@@ -124,6 +146,8 @@ void DMMySQL::get_table_desc(std::string table_name, mysql_table_info& tbl_info)
         
         tbl_info.push_back(field_i);
     }
+    CATCH_SQL_ERROR
+    return true;
 }
 
 void DMMySQL::disconnect_mysql()
@@ -131,14 +155,39 @@ void DMMySQL::disconnect_mysql()
     _conn.disconnect();
 }
 
-bool DMMySQL::write_mysql(std::string sql)
+bool DMMySQL::insert_mysql(std::string sql)
 {
-   
+    TRY_SQL
+    mysqlpp::Query query = _conn.query(sql);
+    query.execute();
+    CATCH_SQL_ERROR
     return true;
 }
 
-bool DMMySQL::read_mysql(std::string table_name, mysql_table& table_data)
+bool DMMySQL::update_mysql(std::string sql)
 {
+    TRY_SQL
+    mysqlpp::Query query = _conn.query(sql);
+    query.execute();
+    CATCH_SQL_ERROR
+    return true;
+}
+
+bool DMMySQL::update_mysql(std::string table_name, std::string field_name, std::string field_value, 
+    std::string filter_key, std::string filter_value)
+{
+    TRY_SQL
+    std::string opration = "update "+ table_name + " set " + field_name + " = " + field_value
+        + " where " + filter_key + " = " + filter_value;    
+    mysqlpp::Query query = _conn.query(opration);
+    query.execute();
+    CATCH_SQL_ERROR
+    return true;
+}
+
+bool DMMySQL::select_mysql(std::string table_name, mysql_table& table_data)
+{
+    TRY_SQL
     std::string opration = "select * from " + table_name;    
     mysqlpp::Query query = _conn.query(opration);
     mysqlpp::StoreQueryResult res = query.store();
@@ -166,12 +215,13 @@ bool DMMySQL::read_mysql(std::string table_name, mysql_table& table_data)
         }
         table_data.insert(make_pair(res.field_name(i).c_str(),fields));
     }
-    
+    CATCH_SQL_ERROR
     return true;
 }
 
-bool DMMySQL::read_mysql(std::string table_name, std::string field_name, std::vector<mysql_field>& field_data)
+bool DMMySQL::select_mysql(std::string table_name, std::string field_name, std::vector<mysql_field>& field_data)
 {
+    TRY_SQL
     std::string opration = "select " + field_name + " from " + table_name;    
     mysqlpp::Query query = _conn.query(opration);
     mysqlpp::StoreQueryResult res = query.store();
@@ -204,14 +254,17 @@ bool DMMySQL::read_mysql(std::string table_name, std::string field_name, std::ve
         trans_data_type(sql_data, sql_type, field);
         field_data.push_back(field);
     }
-
+    CATCH_SQL_ERROR
     return true;
 }
 
-bool DMMySQL::read_mysql(std::string table_name, std::string field_name, 
-    std::string filter, std::vector<mysql_field>& field_data)
+bool DMMySQL::select_mysql(std::string table_name, std::string field_name, 
+    std::string filter_key, std::string filter_value, 
+    std::vector<mysql_field>& field_data, std::string filter_opt)
 {
-    std::string opration = "select " + field_name + " from " + table_name + " " + filter;    
+    TRY_SQL
+    std::string opration = "select " + field_name + " from " + table_name 
+        + " where " + filter_key + " " + filter_opt + "¡¡" + filter_value;    
     mysqlpp::Query query = _conn.query(opration);
     mysqlpp::StoreQueryResult res = query.store();
     
@@ -243,7 +296,7 @@ bool DMMySQL::read_mysql(std::string table_name, std::string field_name,
         trans_data_type(sql_data, sql_type, field);
         field_data.push_back(field);
     }
-
+    CATCH_SQL_ERROR
     return true;
 }
 

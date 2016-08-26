@@ -56,16 +56,22 @@ public:
 
     void show_databases_info(int flag, std::vector<std::string>& databases);
 
-    void get_table_desc(std::string table_name, mysql_table_info& table_info);
+    bool get_table_desc(std::string table_name, mysql_table_info& table_info);
 
-    bool write_mysql(std::string sql);
+    bool insert_mysql(std::string sql);
+    
+    bool update_mysql(std::string sql);
 
-    bool read_mysql(std::string table_name, mysql_table& table_data);
+    bool update_mysql(std::string table_name, std::string field_name, std::string field_value,
+        std::string filter_key, std::string filter_value);
 
-    bool read_mysql(std::string table_name, std::string field_name, std::vector<mysql_field>& field_data);
+    bool select_mysql(std::string table_name, mysql_table& table_data);
 
-    bool read_mysql(std::string table_name, std::string field_name, 
-        std::string filter, std::vector<mysql_field>& field_data);
+    bool select_mysql(std::string table_name, std::string field_name, std::vector<mysql_field>& field_data);
+
+    bool select_mysql(std::string table_name, std::string field_name, 
+        std::string filter_key, std::string filter_value, 
+        std::vector<mysql_field>& field_data, std::string filter_opt = "=");
     
 private:
     bool load_mysql_config();
