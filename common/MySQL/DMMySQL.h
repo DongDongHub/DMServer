@@ -28,14 +28,14 @@ typedef std::vector<mysql_field_info> mysql_table_info;
 typedef struct mysql_field_data
 {
     //数字类型
+    short SHORT;
     int INTEGER;
     long long BIGINT;
     float FLOAT;
     double DOUBLE;
     //时间戳类型
-    long long TIMESTAMP;
+    std::string DATETIME;
     //字符类型
-    char CHAR;
     std::string VARCHAR;
 }mysql_field;
 
@@ -62,9 +62,10 @@ public:
 
     bool read_mysql(std::string table_name, mysql_table& table_data);
 
-    bool read_mysql(std::string table_name, std::string field_name);
+    bool read_mysql(std::string table_name, std::string field_name, std::vector<mysql_field>& field_data);
 
-    bool read_mysql(std::string table_name, std::string field_name, std::string filter);
+    bool read_mysql(std::string table_name, std::string field_name, 
+        std::string filter, std::vector<mysql_field>& field_data);
     
 private:
     bool load_mysql_config();
@@ -74,6 +75,8 @@ private:
     bool conncet_mysql();
 
     void disconnect_mysql();
+
+    void trans_data_type(std::string input_data, std::string data_type, mysql_field& field_data);
 
 private:
     mysql_cfg _mysql_cfg;

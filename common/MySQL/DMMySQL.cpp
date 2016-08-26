@@ -2,6 +2,7 @@
 #include <fstream>
 #include <ace/Log_Msg.h>
 #include "DMMySQL.h"
+#include <cxxabi.h>
 
 DMMySQL::DMMySQL()
 {
@@ -59,8 +60,6 @@ bool DMMySQL::conncet_mysql()
         ACE_DEBUG((LM_ERROR,"connect MySQL database failure!\n"));    
         return false;
     }
-    mysql_table a;
-    read_mysql("tbl_route",a);
 
     return true;
 }
@@ -148,26 +147,146 @@ bool DMMySQL::read_mysql(std::string table_name, mysql_table& table_data)
     if (!field_num)
     {
         return false;
+    }    
+
+    int row_size = res.size();
+    for (int i = 0; i < field_num; ++i)  //字段
+    {    
+        std::vector<mysql_field> fields;
+        for (int j = 0; j < row_size; ++j) //数据条数
+        {
+            mysqlpp::Row row = res[j];
+            
+            std::string sql_data = row[res.field_name(i).c_str()].c_str();
+            std::string sql_type = res.field_type(i).name();
+
+            mysql_field field_data;
+            trans_data_type(sql_data, sql_type, field_data);
+            fields.push_back(field_data);
+        }
+        table_data.insert(make_pair(res.field_name(i).c_str(),fields));
     }
-    //mysql++ field_type.name 内部数据类型直接转换函数使用的typeid在g++环境下不理想，使用sql_name做转换
-    for (int i = 0; i < field_num; ++i) //数据列   
+    
+    return true;
+}
+
+bool DMMySQL::read_mysql(std::string table_name, std::string field_name, std::vector<mysql_field>& field_data)
+{
+    std::string opration = "select " + field_name + " from " + table_name;    
+    mysqlpp::Query query = _conn.query(opration);
+    mysqlpp::StoreQueryResult res = query.store();
+    
+    int field_num = res.num_fields();
+    if (!field_num)
     {
-        ACE_DEBUG((LM_INFO,"%s\n%s\n",res.field_name(i).c_str(),res.field_type(i).sql_name()));
-        //mysqlpp::Row row = res[i]; //数据行
-        //ACE_DEBUG((LM_INFO,"row.begin = %d\n",row.size()));
-        //mysqlpp::Row row = res[i];
+        return false;
+    }    
+
+    int field_index;
+    for (int i = 0; i < field_num; ++i)  //字段
+    {
+        if (field_name == res.field_name(i).c_str())
+        {
+            field_index = i;
+        }
+    }
+    
+    int row_size = res.size();
+    std::vector<mysql_field> fields;
+    for (int i = 0; i < row_size; ++i) //数据条数
+    {
+        mysqlpp::Row row = res[i];
+                    
+        std::string sql_data = row[res.field_name(field_index).c_str()].c_str();
+        std::string sql_type = res.field_type(field_index).name();
+
+        mysql_field field;
+        trans_data_type(sql_data, sql_type, field);
+        field_data.push_back(field);
     }
 
     return true;
 }
 
-bool DMMySQL::read_mysql(std::string table_name, std::string field_name)
+bool DMMySQL::read_mysql(std::string table_name, std::string field_name, 
+    std::string filter, std::vector<mysql_field>& field_data)
 {
+    std::string opration = "select " + field_name + " from " + table_name + " " + filter;    
+    mysqlpp::Query query = _conn.query(opration);
+    mysqlpp::StoreQueryResult res = query.store();
+    
+    int field_num = res.num_fields();
+    if (!field_num)
+    {
+        return false;
+    }    
+
+    int field_index;
+    for (int i = 0; i < field_num; ++i)  //字段
+    {
+        if (field_name == res.field_name(i).c_str())
+        {
+            field_index = i;
+        }
+    }
+    
+    int row_size = res.size();
+    std::vector<mysql_field> fields;
+    for (int i = 0; i < row_size; ++i) //数据条数
+    {
+        mysqlpp::Row row = res[i];
+                    
+        std::string sql_data = row[res.field_name(field_index).c_str()].c_str();
+        std::string sql_type = res.field_type(field_index).name();
+
+        mysql_field field;
+        trans_data_type(sql_data, sql_type, field);
+        field_data.push_back(field);
+    }
+
     return true;
 }
 
-bool DMMySQL::read_mysql(std::string table_name, std::string field_name, std::string filter)
+void DMMySQL::trans_data_type(std::string input_data, std::string data_type, mysql_field& field_data)
 {
-    return true;
+    int result;
+    data_type = abi::__cxa_demangle(data_type.c_str(), 0, 0, &result);
+
+    if (data_type.find("tiny_int") != std::string::npos)
+    {
+        field_data.SHORT = atoi(input_data.c_str());
+    }
+    else if (data_type.find("short") != std::string::npos)
+    {
+        field_data.SHORT = atoi(input_data.c_str());
+    }
+    else if (data_type.find("int") != std::string::npos)
+    {
+        field_data.INTEGER= atoi(input_data.c_str());
+    }
+    else if (data_type.find("long") != std::string::npos)
+    {
+        field_data.BIGINT = atol(input_data.c_str());
+    }
+    else if (data_type.find("float") != std::string::npos)
+    {
+        field_data.FLOAT= atof(input_data.c_str());
+    }
+    else if (data_type.find("double") != std::string::npos)
+    {
+        field_data.DOUBLE = atof(input_data.c_str());
+    }
+    else if (data_type.find("DateTime") != std::string::npos)
+    {
+        field_data.DATETIME = input_data;    
+    }
+    else if (data_type.find("string") != std::string::npos)
+    {
+        field_data.VARCHAR = input_data;
+    }
+    else
+    {
+        field_data.VARCHAR = input_data;
+    }
 }
 
