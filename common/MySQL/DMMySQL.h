@@ -60,6 +60,8 @@ public:
 
     bool insert_mysql(std::string sql);
     
+    bool insert_mysql(std::string table_name, std::map<std::string, std::string>& insert_data);
+    
     bool update_mysql(std::string sql);
 
     bool update_mysql(std::string table_name, std::string field_name, std::string field_value,

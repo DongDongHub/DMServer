@@ -164,6 +164,33 @@ bool DMMySQL::insert_mysql(std::string sql)
     return true;
 }
 
+bool DMMySQL::insert_mysql(std::string table_name, std::map<std::string, std::string>& insert_data)
+{
+    TRY_SQL
+    std::string fields;
+    std::string values;
+    std::map<std::string, std::string>::iterator it = insert_data.begin();
+    while (it != insert_data.end())
+    {
+        fields += it->first;
+        values += it->second; 
+        
+        ++it;
+        
+        if (it != insert_data.end())
+        {
+            fields += ",";
+            values += ",";
+        }
+    }
+    
+    std::string opration = "insert into " + table_name + "(" + fields + ")" + " values(" + values + ")";
+    mysqlpp::Query query = _conn.query(opration);
+    query.execute();
+    CATCH_SQL_ERROR
+    return true;
+}
+
 bool DMMySQL::update_mysql(std::string sql)
 {
     TRY_SQL
