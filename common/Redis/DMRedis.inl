@@ -13,7 +13,7 @@ std::string DMRedis::pack_domain(T1 key_field, T2 value_field)
     strStream << key_field;
     key = strStream.str();
 
-    strStream.clear();
+    strStream.str("");
     strStream << value_field;
     value = strStream.str();
     return key + ":" + value;

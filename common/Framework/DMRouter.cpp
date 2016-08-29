@@ -5,6 +5,7 @@
 #include "json/json.h"
 #include <ace/Log_Msg.h>
 #include <map>
+#include <ace/Log_Msg.h>
 
 void DMRouter::send(DMMessage& message, std::string exchange)
 {
