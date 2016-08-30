@@ -24,7 +24,7 @@ protected:
             
 private:
 
-    bool route_assign(DMMessage& message, int service_id, std::string exchange);
+    bool route_assign(DMMessage& message, std::string exchange);
 
     void route_distribute(DMMessage& message, int service_id, std::string exchange);
 

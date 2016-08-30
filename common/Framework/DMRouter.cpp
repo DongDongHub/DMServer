@@ -5,7 +5,6 @@
 #include "json/json.h"
 #include <ace/Log_Msg.h>
 #include <map>
-#include <ace/Log_Msg.h>
 
 void DMRouter::send(DMMessage& message, std::string exchange)
 {
@@ -18,7 +17,7 @@ void DMRouter::send(DMMessage& message, std::string exchange)
         domain = _redis.pack_domain(message.head.user_id, "node_id");
         _redis.write_redis_hash("TBL_ROUTE" , domain, message.head.node_id);
     }
-    
+
     route(message, exchange);
 }
 
@@ -29,6 +28,12 @@ void DMRouter::publish(DMMessage& message)
 
 void DMRouter::route(DMMessage& message, std::string exchange)
 {
+    //优先依据集群节点数据指定路由
+    if (route_assign(message, exchange))
+    {
+        return;
+    }
+
     std::map<int, MsgRange> message_map = DMServiceMap::instance()->message_map;
     std::map<int, MsgRange>::iterator it = message_map.begin();
 
@@ -46,22 +51,31 @@ void DMRouter::route(DMMessage& message, std::string exchange)
 
     if (0 != svr_id)
     {   
-        //将message推送到rabbitmq-server，依据路由表选择或选择消息最少的队列
-        
-        //route_assign(message, svr_id, exchange);
-        
+        //将message推送到rabbitmq-server，选择消息最少的队列
         route_distribute(message, svr_id, exchange);
-        
     }
 }
 
-bool DMRouter::route_assign(DMMessage& message, int service_id, std::string exchange)
+bool DMRouter::route_assign(DMMessage& message, std::string exchange)
 {
     DMMessageParser parser;
     //pack msg
     char *buf = new char[HEAD_CHAR_LEN + message.head.length];
     parser.pack(message,buf);
     
+    std::string domain = _redis.pack_domain(message.head.user_id, "cluster_id");
+    std::string cluster = _redis.read_redis_hash("TBL_ROUTE",domain);
+    
+    domain = _redis.pack_domain(message.head.user_id, "node_id");
+    std::string node = _redis.read_redis_hash("TBL_ROUTE",domain);
+
+    if (cluster == "nil" || node == "nil")
+    {
+        //查询mysql
+    }
+
+    //指定发送，节点处理方式待重新考虑
+    DMBrokerProxy::getInstance()->publish(exchange, cluster, buf, HEAD_CHAR_LEN + message.head.length);
     return true;
 }
 

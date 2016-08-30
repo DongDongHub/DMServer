@@ -44,7 +44,7 @@ bool DMRedis::write_redis_hash(std::string keys, std::string domain, T value)
     
     ostrStream << value;
     strValue = ostrStream.str();
-    
+
     if (NULL == redisCommand(_redis_ctx, "HSET %s %s %s", keys.c_str(), domain.c_str(), strValue.c_str()))
     {
         ACE_DEBUG((LM_ERROR,"redis write %s failure!\n", keys.c_str()));
