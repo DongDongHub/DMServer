@@ -2,7 +2,7 @@
 #include "mysql++.h"
 
 #define MYSQL_CFG_FILE "..//..//common//MySQL//config.json"
-
+//sql语句操作全部修改为配置加载，全部入参修正为配置读上来的命令映射的sql语句，保留一个通配接口。
 
 typedef struct mysql_config
 {
