@@ -3,8 +3,11 @@
 #include "DMServiceHandle.h"
 #include "DMRouter.h"
 
-//服务框架为集中控制式，service是集中控制器。
-
+//调整类成员结构，可单独运行，业务接入采取策略模式，降低代码耦合，DMServiceHandle为接入对象
+//控制类应该处于网络层和应用层之间，需要封装底层IO和dispatch，route应该在更底层，放在dispatch下一层
+//dispatch除了包含route，还需要包含一个消息工厂。这个消息工厂由业务层提供
+//由此，业务上只需要提供业务handle策略和消息工厂即可，这两个都必须提供一套完整的底层基本功能类，上层只需要进行基本的注册操作即可
+//数据库和其他第三方接口单独存在，完全独立通用，以组合形式引用到业务上
 class DMService
 {
 public:
