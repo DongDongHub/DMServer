@@ -1,7 +1,4 @@
 #include "DMServiceMap.h"
-#include <fstream>
-#include "json/json.h"
-#include <ace/Log_Msg.h>
 
 DMServiceMap* DMServiceMap::_instance = nullptr;
 ACE_Thread_Mutex DMServiceMap::_mutex_lock;
@@ -29,7 +26,7 @@ void DMServiceMap::load_cfg()
 
     if (!cfg_file.is_open())
     {   
-        ACE_DEBUG((LM_INFO,"open MsgRoute.json config failure!\n"));
+        ACE_DEBUG((LM_INFO,"open DMaker.json config failure!\n"));
         return;
     }
 
@@ -43,34 +40,34 @@ void DMServiceMap::load_cfg()
         Json::Value::Members::iterator it = members.begin();
         for (; it != members.end(); ++it)
         {
-            std::string service_name = *it;
-            int svr_id = service_id[service_name].asInt();
-            service_map.insert(std::make_pair(service_name,svr_id));
+            string service_name = *it;
+            DM_INT32 svr_id = service_id[service_name].asInt();
+            service_map.insert(make_pair(service_name,svr_id));
         }
 
         Json::Value rabbit_queue = Root["rabbit_queue"];
-        std::map<std::string, int>::iterator svr_it = service_map.begin();
+        map<string, DM_INT32>::iterator svr_it = service_map.begin();
         for (; svr_it != service_map.end(); ++svr_it)
         {
-            std::string svr_name = svr_it->first;
-            int svr_id = svr_it->second;
-            int mq_size = rabbit_queue[svr_name].size();
-            std::vector<std::string> mq_number;
-            for (int i = 0; i < mq_size; ++i)
+            string svr_name = svr_it->first;
+            DM_INT32 svr_id = svr_it->second;
+            DM_INT32 mq_size = rabbit_queue[svr_name].size();
+            vector<string> mq_number;
+            for (DM_INT32 i = 0; i < mq_size; ++i)
             {
                 mq_number.push_back(rabbit_queue[svr_name][i].asString());
             }
-            queue_map.insert(std::make_pair(svr_id,mq_number));
+            queue_map.insert(make_pair(svr_id,mq_number));
         }
 
         Json::Value message_route = Root["message_route"];
         for (svr_it = service_map.begin(); svr_it != service_map.end(); ++svr_it)
         {
-            int svr_id = svr_it->second;
+            DM_INT32 svr_id = svr_it->second;
             MsgRange msg_range;
             msg_range.msg_start = message_route[svr_it->first][0].asInt();
             msg_range.msg_end = message_route[svr_it->first][1].asInt();
-            message_map.insert(std::make_pair(svr_id,msg_range));
+            message_map.insert(make_pair(svr_id,msg_range));
         }
     }
 }
