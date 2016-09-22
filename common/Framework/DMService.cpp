@@ -5,17 +5,10 @@
 
 DMMessageFactory* DMService::_factory = nullptr;
 
-void DMService::init()
+void DMService::init(DMMessageFactory* msg_factory)
 {
-    DMTask::instance()->init();
-    DMTask::instance()->register_message_callback(message_task_callback);
-
+    _factory = msg_factory;
     _factory->init_cmd();
-}
-    
-void DMService::register_message_factory(DMMessageFactory* msg_factory)
-{
-    _factory = msg_factory;   
 }
 
 void DMService::send_message(DM_INT uid, DMMessage& msg, DM_INT dest)

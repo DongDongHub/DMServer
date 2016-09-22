@@ -1,78 +1,67 @@
 #include "DMSessionManager.h"
-#include <ace/Log_Msg.h>
+#include "DMSession.h"
+#include "DMService.h"
+#include "DMMessageFactory.h"
 
-int DMSessionManager::add_session(ACE_HANDLE handle, short uid, DMSession* pSession)
-{    
-    del_session(uid);
-        
-	_mutex_lock.acquire();
+void DMSessionManager::init(DMService* service, DMMessageFactory* factory)
+{
+    _service = service;
+    _factory = factory;
+}
+
+int DMSessionManager::add_session(DM_INT uid, ACE_HANDLE handle)
+{         
+    _mutex_lock.acquire();
     
-    pSession->uid = uid;
-	_sessions[handle] = pSession;
+    if (nullptr != _sessions[uid])
+    {
+        //update fd
+        _sessions[uid]->_fd = handle;
+
+        _mutex_lock.release();
+        
+        return 0;
+    }
+
+	_sessions[uid] = new DMSession(handle);
+    _sessions[uid]->_service = _service->clone();
+    _sessions[uid]->_msg_factory = _factory->clone();
+    _sessions[uid]->init();
     
 	_mutex_lock.release();
     
 	return 0;
 }
 
-int DMSessionManager::activate_session(ACE_HANDLE fd)
+int DMSessionManager::activate_session(DM_INT uid)
 {
 	int ret = -1;
     
-	if (nullptr != find_session(fd))
+	if (nullptr != find_session(uid))
 	{
-		_sessions[fd]->enable = true;
+		_sessions[uid]->_enable = true;
 		ret = 0;
 	}
     
 	return ret;
 }
 
-int DMSessionManager::deactivate_session(ACE_HANDLE fd)
+int DMSessionManager::deactivate_session(DM_INT uid)
 {
 	int ret = -1;
     
-	if (nullptr != find_session(fd))
+	if (nullptr != find_session(uid))
 	{
-		_sessions[fd]->enable = false;
+		_sessions[uid]->_enable = false;
 		ret = 0;
 	}
     
 	return ret;
 }
 
-int DMSessionManager::activate_session(short uid)
+DMSession* DMSessionManager::find_session(DM_INT uid)
 {
-	int ret = -1;
-
-    DMSession* pSession = find_session(uid);
-	if (nullptr != pSession)
-	{
-		pSession->enable = true;
-		ret = 0;
-	}
-    
-	return ret;
-}
-
-int DMSessionManager::deactivate_session(short uid)
-{
-	int ret = -1;
-    
-    DMSession* pSession = find_session(uid);
-	if (nullptr != pSession)
-	{
-		pSession->enable = false;
-		ret = 0;
-	}
-
-    
-	return ret;
-}
-
-DMSession* DMSessionManager::find_session(ACE_HANDLE fd)
-{
-	std::map<ACE_HANDLE, DMSession*>::iterator it = _sessions.find(fd);
+	std::map<ACE_HANDLE, DMSession*>::iterator it = _sessions.find(uid);
     
 	if (it != _sessions.end())
 	{
@@ -82,31 +71,13 @@ DMSession* DMSessionManager::find_session(ACE_HANDLE fd)
 	return nullptr;
 }
 
-DMSession* DMSessionManager::find_session(short uid)
+ACE_HANDLE DMSessionManager::find_fd(DM_INT uid)
 {
-    std::map<ACE_HANDLE, DMSession*>::iterator it = _sessions.begin();
-    for (; it != _sessions.end(); ++it)
-    {
-        DMSession* pSession = it->second;
-        if (uid == pSession->uid)
-        {
-            return it->second;
-        }
-    }
-    return nullptr;
-}
-
-ACE_HANDLE DMSessionManager::find_fd(short uid)
-{
-	DMSession* pSession = find_session(uid);
+	DMSession* pSession = _sessions[uid];
     
-    std::map<ACE_HANDLE, DMSession*>::iterator it = _sessions.begin();
-    for (; it != _sessions.end(); ++it)
+    if (nullptr != pSession)
     {
-        if (pSession == it->second)
-        {
-            return it->first;
-        }
+        return pSession->_fd;
     }
         
 	return -1;
@@ -117,34 +88,18 @@ int DMSessionManager::del_session(ACE_HANDLE fd)
 	_mutex_lock.acquire();
     
 	int ret = -1;
-    
-	if (nullptr != find_session(fd))
-	{
-	    delete _sessions[fd];
-		_sessions.erase(fd);
-		ret = 0;
-	}
-    
-	_mutex_lock.release();
-    
-	return ret;
-}
 
-int DMSessionManager::del_session(short uid)
-{
-	_mutex_lock.acquire();
-    
-	int ret = -1;
-
-    std::map<ACE_HANDLE, DMSession*>::iterator it = _sessions.begin();
+    map<DM_INT, DMSession*>::iterator it = _sessions.begin();
     for (; it != _sessions.end(); ++it)
     {
-        DMSession* pSession = it->second;
-        if (uid == pSession->uid)
+        if (it->second->_fd == fd)
         {
+            delete it->second->_service;
+            delete it->second->_msg_factory;
             delete it->second;
+            it->second = nullptr;
             _sessions.erase(it);
-            ret = 0;
+		    ret = 0;
         }
     }
     

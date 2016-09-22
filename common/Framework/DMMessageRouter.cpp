@@ -1,4 +1,5 @@
 #include "DMMessageRouter.h"
+#include "DMSessionManager.h"
 
 void DMMessageRouter::publish(DMMessage& message)
 {
@@ -11,7 +12,7 @@ DM_BOOL DMMessageRouter::receive(ACE_HANDLE fd, DMMessage& message)
     ACE_SOCK_Stream stream(fd);
 	if (stream.recv(head,HEAD_CHAR_LEN) < 1)
     {
-        DM_LOG(DM_INFO,"revice head error!");
+        DM_LOG(DM_INFO,"user disconnect!");
         user_disconnect(fd);
         return false;
     }   
@@ -21,24 +22,20 @@ DM_BOOL DMMessageRouter::receive(ACE_HANDLE fd, DMMessage& message)
 	//parse head
 	head_info = parser.parse(head);
 
+    DM_UINT32 max_size = DMJsonCfg::instance()->GetItemInt("service_config", "message_max_size");
+	if ( head_info.length <= 0 || head_info.length > max_size)
+	{
+	    DM_LOG(DM_INFO,"parse head error!");
+		return false;;
+	}
+    
 	user_connect(fd, head_info.msg_uid);
 
-    //some message maybe have no message body
-    do
-    {
-        DM_UINT32 max_size = DMJsonCfg::instance()->GetItemInt("service_config", "message_max_size");
-    	if ( head_info.length <= 0 || head_info.length > max_size)
-    	{
-    		break;
-    	}
-
-    	//recive body
-    	message.require_body_size(head_info.length);
-    	memset(message.body,0,head_info.length);
-    	stream.recv(message.body,head_info.length);
+	//recive body
+	message.require_body_size(head_info.length);
+	memset(message.body,0,head_info.length);
+	stream.recv(message.body,head_info.length);
         
-    }while(false);
-
 	message.head = head_info;
 
 	return true;
@@ -124,7 +121,7 @@ void DMMessageRouter::route_distribute(DMMessage& message, DM_INT32 service_id, 
 
 void DMMessageRouter::user_connect(ACE_HANDLE fd, short uid)
 {
-    DMSessionMgr::instance()->add_session(fd, uid, new DMSession());//fd作为sessionid
+    DMSessionMgr::instance()->add_session(uid, fd);//fd作为sessionid
 }
 
 void DMMessageRouter::user_disconnect(ACE_HANDLE fd)
