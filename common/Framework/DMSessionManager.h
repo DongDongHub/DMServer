@@ -24,7 +24,7 @@ class DMSession;
 class DMSessionManager
 {
 public:
-    void init(DMService* service, DMMessageFactory* factory);
+    void init(function<DMService*()> func_server, function<DMMessageFactory*()> func_factory);
     
 	int add_session(DM_INT uid, ACE_HANDLE handle);
     
@@ -42,9 +42,9 @@ protected:
     
 private:
     
-    DMService* _service;
+    function<DMService*()> _service;
 
-    DMMessageFactory* _factory;
+    function<DMMessageFactory*()> _factory;
     
 	ACE_Thread_Mutex _mutex_lock;
     

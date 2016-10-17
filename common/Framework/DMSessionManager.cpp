@@ -3,10 +3,10 @@
 #include "DMService.h"
 #include "DMMessageFactory.h"
 
-void DMSessionManager::init(DMService* service, DMMessageFactory* factory)
+void DMSessionManager::init(function<DMService*()> func_server, function<DMMessageFactory*()> func_factory)
 {
-    _service = service;
-    _factory = factory;
+    _service = func_server;
+    _factory = func_factory;
 }
 
 int DMSessionManager::add_session(DM_INT uid, ACE_HANDLE handle)
@@ -24,8 +24,8 @@ int DMSessionManager::add_session(DM_INT uid, ACE_HANDLE handle)
     }
 
 	_sessions[uid] = new DMSession(handle);
-    _sessions[uid]->_service = _service->clone();
-    _sessions[uid]->_msg_factory = _factory->clone();
+    _sessions[uid]->_service = _service();
+    _sessions[uid]->_msg_factory = _factory();
     _sessions[uid]->init();
     
 	_mutex_lock.release();
