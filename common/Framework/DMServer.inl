@@ -34,9 +34,7 @@ DM_BOOL DMServer<SERVICE, MESSAGE_FACTORY>::init(const string& config_path, DM_I
     //init dispatcher
     _dispatcher.init();
 
-    DMService* service = new SERVICE;
-    DMMessageFactory* factory = new MESSAGE_FACTORY;
-    DMSessionMgr::instance()->init(service, factory);
+    DMSessionMgr::instance()->init([=](){return new SERVICE;}, [=](){return new MESSAGE_FACTORY;});
 
     DMTask::instance()->init();
 

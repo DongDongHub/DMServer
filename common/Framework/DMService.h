@@ -42,8 +42,6 @@ public:
 
     static void message_task_callback(DMMessage& msg);
     
-    DM_CLONE(DMService);
-    
 private:
     
     void send_app_message(ACE_HANDLE fd, DMMessage& msg);
