@@ -29,20 +29,16 @@ std::string ProxyMapManager::hash(int uid)
 
 void ProxyMapManager::update(char key, std::string proxy)
 {
-	//_mutex.acquire_write();
 	_map[key] = proxy;
-	//_mutex.release();
 }
 
 void ProxyMapManager::remove(char key)
 {
-	//_mutex.acquire_write();
 	std::map<char, std::string>::iterator it = _map.find(key);
 	if (it != _map.end())
 	{
 		_map.erase(it);
 	}
-	//_mutex.release();
 }
 
 void ProxyMapManager::load()
