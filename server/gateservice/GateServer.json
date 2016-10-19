@@ -10,6 +10,7 @@
     "service_config":
     { 
         "log_level" : "DEBUG",
+        "message_max_size" : 64,
         "process_num" : 4,
         "FD_NUM" : 2048
     },
