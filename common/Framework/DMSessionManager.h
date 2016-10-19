@@ -42,9 +42,9 @@ protected:
     
 private:
     
-    function<DMService*()> _service;
+    DMService*_service;
 
-    function<DMMessageFactory*()> _factory;
+    DMMessageFactory* _factory;
     
 	ACE_Thread_Mutex _mutex_lock;
     

@@ -4,7 +4,7 @@
 void DMMultiTask::init()
 {
     _task_num = DMJsonCfg::instance()->GetItemInt("service_config", "task_num");
-    activate(THR_NEW_LWP | THR_JOINABLE |THR_INHERIT_SCHED , _task_num);//创建线程
+    activate(THR_NEW_LWP | THR_JOINABLE |THR_INHERIT_SCHED , 1);//创建线程
 }
 
 void DMMultiTask::put_msg(DMMessage* msg)
