@@ -38,7 +38,7 @@ public:
     DM_BOOL paser_proto_message(DM_CHAR* msg, PROTO_NAME& proto_msg, DM_INT msg_length);
 
     template<class PROTO_NAME>
-    DM_BOOL pack_proto_message(DM_CHAR* msg, PROTO_NAME& proto_msg, DM_INT msg_length);
+    DM_BOOL pack_proto_message(DM_CHAR* msg, PROTO_NAME& proto_msg);
 
 private:
     map<DM_INT, MESSAGE_CALLBACK_HANDLE> _cmd_map;

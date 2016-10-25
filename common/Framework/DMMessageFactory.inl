@@ -28,7 +28,7 @@ DM_BOOL DMMessageFactory::paser_proto_message(DM_CHAR* msg, PROTO_NAME& proto_ms
 }
 
 template<class PROTO_NAME>
-DM_BOOL pack_proto_message(DM_CHAR* msg, PROTO_NAME& proto_msg)
+DM_BOOL DMMessageFactory::pack_proto_message(DM_CHAR* msg, PROTO_NAME& proto_msg)
 {
     std::string msg_data;
     if (!proto_msg.SerializeToString(msg_data))
