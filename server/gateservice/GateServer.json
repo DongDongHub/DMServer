@@ -2,7 +2,7 @@
     "service_info":
     {
         "service_name" : "GateService",
-        "service_ip" : "127.0.0.1",
+        "service_ip" : "172.18.188.234",
         "service_port" : 6668,
         "service_tcp" : 0
     },

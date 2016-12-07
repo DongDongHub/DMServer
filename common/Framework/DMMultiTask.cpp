@@ -15,6 +15,8 @@ void DMMultiTask::put_msg(DMMessage* msg)
     Data_Block->base(p,sizeof(DMMessage));
     ACE_Message_Block* msg_block = new ACE_Message_Block(Data_Block); 
     putq(msg_block);
+    Data_Block->release();
+    msg_block->release();
 }
 
 int DMMultiTask::svc(void)

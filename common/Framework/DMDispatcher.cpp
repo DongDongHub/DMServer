@@ -27,7 +27,7 @@ DM_INT DMDispatcher::handle_input(ACE_HANDLE fd)
 
     DMTask::instance()->put_msg(client_message);
     //ÄÚ´æÊÍ·Å?
-    //delete client_message;
+    delete client_message;
     return _tcp_state;
 }
 
@@ -41,7 +41,7 @@ DM_INT DMDispatcher::handle_input(const AMQP::Message &message)
     }
 
     DMTask::instance()->put_msg(server_message);
-    
+    delete server_message;
     return 0;
 }
 

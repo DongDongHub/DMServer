@@ -84,10 +84,7 @@ public:
     
     void release_body_size()
     {
-        if (nullptr != body)
-        {
-            delete[] body; 
-        }
+        delete[] body; 
     }
     
     DMMessage& operator=(DMMessage other)

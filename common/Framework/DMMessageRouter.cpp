@@ -121,7 +121,7 @@ void DMMessageRouter::route_distribute(DMMessage& message, DM_INT32 service_id, 
 
 void DMMessageRouter::user_connect(ACE_HANDLE fd, short uid)
 {
-    DMSessionMgr::instance()->add_session(uid, fd);//fd作为sessionid
+    //DMSessionMgr::instance()->add_session(uid, fd);//fd作为sessionid
 }
 
 void DMMessageRouter::user_disconnect(ACE_HANDLE fd)
